@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  body {
+    font-family: "Times New Roman", Times, Georgia, serif;
+    background-color: #fcfcf9;
+    color: #111111;
+    line-height: 1.6;
+  }
+}
+
+.font-size-sm, .font-size-sm * {
+  font-size: 14px !important;
+}
+
+.font-size-base, .font-size-base * {
+  font-size: 16px !important;
+}
+
+.font-size-lg, .font-size-lg * {
+  font-size: 19px !important;
+}

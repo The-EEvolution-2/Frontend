@@ -1,0 +1,36 @@
+import { Resource } from '../types/resource';
+
+export const FEATURED_PUBLICATIONS: (Resource & { abstract: string })[] = [
+  {
+    id: 'pub-01',
+    title: 'Electromagnetic Interface & High-Frequency PCB Wave Propagation Analysis',
+    description: 'Analytical study on boundary value problems, microstrip trace cross-talk, and dielectric loss mechanisms in multi-layer board designs.',
+    abstract: 'This paper formulates exact boundary value equations for high-frequency signal propagation over FR4 and Rogers substrate layers. Includes measured empirical data for return loss (S11) up to 10 GHz.',
+    category: 'Academics',
+    categorySlug: 'academics',
+    categoryLabel: 'Academics',
+    topicSlug: 'electromagnetics',
+    topicLabel: 'Electromagnetics',
+    url: '#',
+    author: 'Prof. R. Vance & Dr. K. Thorne',
+    date: '2026-08-14',
+    fileSize: '4.2 MB PDF',
+    difficulty: 'Advanced',
+  },
+  {
+    id: 'pub-02',
+    title: 'Micro-Gallium Nitride (GaN) Power FET Switching & Thermal Dissipation Dataset',
+    description: 'Experimental telemetry capturing thermal dissipation gradients and switching transition losses in experimental GaN bridge topologies.',
+    abstract: 'Detailed log of junction temperature vs. switching frequency (100 kHz - 2 MHz) under 400V DC bus conditions. Raw CSV telemetry files attached.',
+    category: 'Experimental',
+    categorySlug: 'experimental',
+    categoryLabel: 'Experimental',
+    topicSlug: 'telemetry',
+    topicLabel: 'Experimental Telemetry',
+    url: '#',
+    author: 'Power Electronics Research Lab',
+    date: '2026-08-12',
+    fileSize: '8.1 MB CSV/PDF',
+    difficulty: 'Advanced',
+  },
+];
