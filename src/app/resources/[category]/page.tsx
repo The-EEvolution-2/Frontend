@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { use } from 'react';
 import Link from 'next/link';
 import ResourceCard from '@/components/ResourceCard';
 import { RESOURCE_CATEGORIES } from '@/constants/nestedResourcesData';
@@ -15,8 +15,8 @@ interface CategoryPageProps {
   }>;
 }
 
-export default async function CategoryPage({ params }: CategoryPageProps) {
-  const resolvedParams = await params;
+export default function CategoryPage({ params }: CategoryPageProps) {
+  const resolvedParams = use(params);
   const { category } = resolvedParams;
 
   const categoryMeta = RESOURCE_CATEGORIES.find((c) => c.slug === category);
