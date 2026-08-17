@@ -1,18 +1,21 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import { ThumbsUp, ThumbsDown, Send, MessageSquare, Megaphone, Loader2 } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Image as ImageIcon, Send, MessageSquare, Megaphone, Loader2, UserCheck } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { ANNOUNCEMENTS } from '@/constants/announcements';
 
-interface ChatPost {
+interface CommunityPost {
   id: string;
   author_id?: string;
   author_name: string;
   author_role?: string;
+  title?: string;
   content: string;
+  image_url?: string;
   upvotes: number;
   downvotes: number;
   created_at: string;
@@ -34,15 +37,16 @@ export default function CommunityClientContent() {
     }
   }, [activeTabParam]);
 
-  // Chat Discussions State
-  const [posts, setPosts] = useState<ChatPost[]>([]);
-  const [newMessage, setNewMessage] = useState('');
+  // Posts Feed State
+  const [posts, setPosts] = useState<CommunityPost[]>([]);
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const [loading, setLoading] = useState(true);
-  const [sending, setSending] = useState(false);
+  const [posting, setPosting] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const chatBottomRef = useRef<HTMLDivElement>(null);
 
-  // Load User & Posts
+  // Load User & Feed Posts
   useEffect(() => {
     async function loadData() {
       setLoading(true);
@@ -57,7 +61,7 @@ export default function CommunityClientContent() {
         setCurrentUser({
           id: session.user.id,
           name: profile?.full_name || session.user.email?.split('@')[0] || 'Engineer Member',
-          role: profile?.role || 'member',
+          role: profile?.role || 'Member',
         });
       } else {
         const guestData = localStorage.getItem('ee_guest_user');
@@ -67,7 +71,7 @@ export default function CommunityClientContent() {
             setCurrentUser({
               id: 'guest',
               name: parsed.full_name || 'Guest Researcher',
-              role: 'guest',
+              role: 'Guest',
             });
           } catch {
             // ignore
@@ -87,7 +91,7 @@ export default function CommunityClientContent() {
       const { data, error } = await supabase
         .from('community_posts')
         .select('*')
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: false });
 
       if (error) {
         if (error.code === '42P01') {
@@ -98,23 +102,20 @@ export default function CommunityClientContent() {
       }
 
       setPosts(data || []);
-      setTimeout(() => {
-        chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
     } catch (err) {
-      console.log('Error fetching chat posts:', err);
+      console.log('Error fetching posts:', err);
     }
   };
 
-  const handleSendMessage = async (e: React.FormEvent) => {
+  const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || sending) return;
+    if (!content.trim() || posting) return;
 
     const authorName = currentUser?.name || 'Anonymous Member';
     const authorRole = currentUser?.role || 'Member';
     const authorId = currentUser?.id !== 'guest' ? currentUser?.id : null;
 
-    setSending(true);
+    setPosting(true);
     try {
       const { data, error } = await supabase
         .from('community_posts')
@@ -123,7 +124,9 @@ export default function CommunityClientContent() {
             author_id: authorId,
             author_name: authorName,
             author_role: authorRole,
-            content: newMessage.trim(),
+            title: title.trim() || null,
+            content: content.trim(),
+            image_url: imageUrl.trim() || null,
             upvotes: 0,
             downvotes: 0,
           },
@@ -134,16 +137,15 @@ export default function CommunityClientContent() {
       if (error) throw error;
 
       if (data) {
-        setPosts((prev) => [...prev, data]);
-        setNewMessage('');
-        setTimeout(() => {
-          chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
+        setPosts((prev) => [data, ...prev]);
+        setTitle('');
+        setContent('');
+        setImageUrl('');
       }
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Failed to send message');
+      alert(err instanceof Error ? err.message : 'Failed to publish post');
     } finally {
-      setSending(false);
+      setPosting(false);
     }
   };
 
@@ -160,7 +162,6 @@ export default function CommunityClientContent() {
       newDownvotes += 1;
     }
 
-    // Optimistic UI Update
     setPosts((prev) =>
       prev.map((p) =>
         p.id === postId
@@ -188,7 +189,7 @@ export default function CommunityClientContent() {
   };
 
   return (
-    <div className="py-8 px-4 sm:px-8 lg:px-16 w-full font-sans space-y-6 text-stone-900 dark:text-stone-100 max-w-6xl mx-auto">
+    <div className="py-8 px-4 sm:px-8 lg:px-16 w-full font-sans space-y-6 text-stone-900 dark:text-stone-100 max-w-4xl mx-auto">
       {/* Breadcrumb Navigation */}
       <div className="text-xs font-mono text-stone-500 border-b border-stone-200 dark:border-stone-800 pb-2">
         <Link href="/" className="hover:underline">domain</Link>
@@ -196,14 +197,14 @@ export default function CommunityClientContent() {
         <span className="text-black dark:text-white font-bold">community</span>
       </div>
 
-      {/* 2-Option Header Tabs (Discussions & Q&A vs Announcements) */}
-      <div className="flex items-center justify-between border-b-2 border-stone-800 dark:border-stone-200 pb-3">
+      {/* Header Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b-2 border-stone-800 dark:border-stone-200 pb-3 gap-4">
         <div>
           <h1 className="text-2xl font-bold text-black dark:text-white tracking-tight uppercase">
-            COMMUNITY &amp; DISCUSSIONS HUB
+            COMMUNITY FEED &amp; DISCUSSION FORUM
           </h1>
           <p className="text-xs font-mono text-stone-600 dark:text-stone-400 mt-0.5">
-            PEER CHAT STREAM, SCHEMATIC Q&amp;A, AND OFFICIAL ADMIN ANNOUNCEMENTS.
+            FULL TECHNICAL POSTS, SCHEMATIC ANALYSIS &amp; OFFICIAL ANNOUNCEMENTS.
           </p>
         </div>
 
@@ -218,7 +219,7 @@ export default function CommunityClientContent() {
             }`}
           >
             <MessageSquare className="w-4 h-4" />
-            <span>Discussions &amp; Chat</span>
+            <span>Community Feed</span>
           </button>
 
           <button
@@ -235,105 +236,157 @@ export default function CommunityClientContent() {
         </div>
       </div>
 
-      {/* TAB 1: DISCUSSIONS CHAT SYSTEM */}
+      {/* TAB 1: FULL COMMUNITY FEED (FACEBOOK/REDDIT STYLE POSTS) */}
       {activeTab === 'discussions' && (
-        <div className="border border-stone-300 dark:border-stone-800 bg-[#FCFCF9] dark:bg-[#141414] rounded-xl flex flex-col h-[600px] shadow-lg overflow-hidden">
-          {/* Chat Messages Stream Area */}
-          <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 font-sans text-xs">
-            {loading ? (
-              <div className="h-full flex items-center justify-center text-stone-500 font-mono text-xs gap-2">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Syncing live community chat messages...</span>
+        <div className="space-y-6">
+          {/* Create Post Box */}
+          <form
+            onSubmit={handleCreatePost}
+            className="border border-stone-300 dark:border-stone-800 bg-[#FCFCF9] dark:bg-[#141414] rounded-xl p-5 sm:p-6 shadow-md space-y-4 font-sans text-xs"
+          >
+            <div className="flex items-center justify-between border-b border-stone-200 dark:border-stone-800 pb-3">
+              <span className="font-mono text-xs font-bold text-black dark:text-white uppercase flex items-center gap-2">
+                <UserCheck className="w-4 h-4 text-stone-500" />
+                <span>Create Technical Post as {currentUser?.name || 'Member'}</span>
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              <input
+                type="text"
+                placeholder="Post Headline / Topic Title (Optional)"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full p-2.5 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-lg focus:outline-none focus:ring-1 focus:ring-stone-500 font-semibold"
+              />
+
+              <textarea
+                required
+                rows={4}
+                placeholder="Write your complete technical post, circuit analysis, or engineering query..."
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                className="w-full p-3 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-lg focus:outline-none focus:ring-1 focus:ring-stone-500 leading-relaxed font-sans"
+              />
+
+              <div className="relative">
+                <ImageIcon className="w-4 h-4 absolute left-3 top-3 text-stone-400" />
+                <input
+                  type="url"
+                  placeholder="Attach Image URL (e.g. https://.../schematic.png)"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  className="w-full pl-9 p-2.5 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-lg text-xs font-mono"
+                />
               </div>
-            ) : posts.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-2 text-stone-500 font-mono">
-                <MessageSquare className="w-8 h-8 text-stone-400" />
-                <p className="font-bold text-black dark:text-white uppercase">No Chat Discussions Yet</p>
-                <p className="text-[11px] max-w-xs">Be the first engineer to post a question or schematic feedback in the discussion room below!</p>
-              </div>
-            ) : (
-              posts.map((post) => (
-                <div
+            </div>
+
+            <div className="flex justify-end pt-1">
+              <button
+                type="submit"
+                disabled={posting || !content.trim()}
+                className="px-5 py-2.5 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-mono text-xs font-bold uppercase rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2 disabled:opacity-50"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>{posting ? 'Publishing...' : 'Publish Post'}</span>
+              </button>
+            </div>
+          </form>
+
+          {/* Posts Stream List */}
+          {loading ? (
+            <div className="py-16 text-center text-stone-500 font-mono text-xs flex items-center justify-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Loading community posts...</span>
+            </div>
+          ) : posts.length === 0 ? (
+            <div className="p-12 border-2 border-dashed border-stone-300 dark:border-stone-800 rounded-xl text-center text-stone-500 font-mono text-xs space-y-2">
+              <MessageSquare className="w-8 h-8 mx-auto text-stone-400" />
+              <p className="font-bold text-black dark:text-white uppercase">No Community Posts Yet</p>
+              <p className="text-[11px]">Use the box above to publish the first technical post!</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {posts.map((post) => (
+                <article
                   key={post.id}
-                  className="p-4 border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 rounded-lg space-y-2 hover:border-stone-300 dark:hover:border-stone-700 transition-colors"
+                  className="border border-stone-300 dark:border-stone-800 bg-[#FCFCF9] dark:bg-[#141414] rounded-xl p-6 shadow-md space-y-4 font-sans"
                 >
                   {/* Author Header */}
-                  <div className="flex items-center justify-between font-mono text-[11px]">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-black dark:text-white">
-                        {post.author_name}
-                      </span>
-                      <span className="px-2 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 uppercase text-[10px] font-bold">
-                        {post.author_role || 'Member'}
-                      </span>
+                  <div className="flex items-center justify-between border-b border-stone-200 dark:border-stone-800 pb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-bold text-sm flex items-center justify-center">
+                        {post.author_name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-sm text-black dark:text-white">
+                          {post.author_name}
+                        </h4>
+                        <span className="text-[11px] font-mono text-stone-500 uppercase">
+                          {post.author_role || 'Member'}
+                        </span>
+                      </div>
                     </div>
-                    <span className="text-stone-400">
-                      {new Date(post.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+
+                    <span className="text-xs font-mono text-stone-400">
+                      {new Date(post.created_at).toLocaleDateString(undefined, {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
                     </span>
                   </div>
 
-                  {/* Message Content */}
-                  <p className="text-stone-800 dark:text-stone-200 leading-relaxed font-sans text-xs whitespace-pre-wrap">
+                  {/* Post Title */}
+                  {post.title && (
+                    <h3 className="text-lg font-bold text-black dark:text-white tracking-tight">
+                      {post.title}
+                    </h3>
+                  )}
+
+                  {/* Full Text Content */}
+                  <p className="text-stone-800 dark:text-stone-200 leading-relaxed text-sm whitespace-pre-wrap">
                     {post.content}
                   </p>
 
-                  {/* Upvote & Downvote Controls */}
-                  <div className="pt-2 flex items-center gap-4 font-mono text-[11px] text-stone-500 border-t border-stone-100 dark:border-stone-800/80">
+                  {/* Optional Embedded Image */}
+                  {post.image_url && (
+                    <div className="relative w-full h-64 sm:h-80 rounded-lg overflow-hidden border border-stone-300 dark:border-stone-800 bg-stone-100 dark:bg-stone-900">
+                      <Image
+                        src={post.image_url}
+                        alt={post.title || 'Post attachment'}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
+
+                  {/* Upvote / Downvote Bar */}
+                  <div className="pt-3 border-t border-stone-200 dark:border-stone-800 flex items-center gap-4 font-mono text-xs text-stone-500">
                     <button
                       onClick={() => handleVote(post.id, 'up')}
-                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded hover:bg-emerald-50 dark:hover:bg-emerald-950/50 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors ${
-                        post.userVoted === 'up' ? 'text-emerald-600 font-bold bg-emerald-50 dark:bg-emerald-950/60' : ''
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-300 dark:border-stone-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors ${
+                        post.userVoted === 'up' ? 'text-emerald-600 font-bold bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300' : ''
                       }`}
                     >
-                      <ThumbsUp className="w-3.5 h-3.5" />
-                      <span>{post.upvotes || 0}</span>
+                      <ThumbsUp className="w-4 h-4" />
+                      <span>{post.upvotes || 0} Upvotes</span>
                     </button>
 
                     <button
                       onClick={() => handleVote(post.id, 'down')}
-                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/50 hover:text-rose-700 dark:hover:text-rose-400 transition-colors ${
-                        post.userVoted === 'down' ? 'text-rose-600 font-bold bg-rose-50 dark:bg-rose-950/60' : ''
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-300 dark:border-stone-700 hover:bg-rose-50 dark:hover:bg-rose-950/50 hover:text-rose-700 dark:hover:text-rose-400 transition-colors ${
+                        post.userVoted === 'down' ? 'text-rose-600 font-bold bg-rose-50 dark:bg-rose-950/60 border-rose-300' : ''
                       }`}
                     >
-                      <ThumbsDown className="w-3.5 h-3.5" />
-                      <span>{post.downvotes || 0}</span>
+                      <ThumbsDown className="w-4 h-4" />
+                      <span>{post.downvotes || 0} Downvotes</span>
                     </button>
                   </div>
-                </div>
-              ))
-            )}
-            <div ref={chatBottomRef} />
-          </div>
-
-          {/* Bottom Chat Text Area & Send Input */}
-          <form
-            onSubmit={handleSendMessage}
-            className="p-3 sm:p-4 border-t border-stone-200 dark:border-stone-800 bg-[#F5F5F0] dark:bg-[#181818] flex items-center gap-3"
-          >
-            <textarea
-              required
-              rows={1}
-              placeholder="Type your discussion post or schematic question..."
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSendMessage(e);
-                }
-              }}
-              className="flex-1 p-2.5 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-stone-500 resize-none font-sans"
-            />
-
-            <button
-              type="submit"
-              disabled={sending || !newMessage.trim()}
-              className="px-4 py-2.5 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-mono text-xs font-bold uppercase rounded-lg hover:opacity-90 transition-opacity flex items-center gap-1.5 disabled:opacity-50 flex-shrink-0"
-            >
-              <span>{sending ? 'Sending...' : 'Send'}</span>
-              <Send className="w-3.5 h-3.5" />
-            </button>
-          </form>
+                </article>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
