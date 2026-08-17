@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import AccessGuard from '@/components/AccessGuard';
 
 export interface ResearchPaper {
   id: string;
@@ -34,47 +35,49 @@ export const RESEARCH_PAPERS: ResearchPaper[] = [
 
 export default function ResearchPage() {
   return (
-    <div className="py-8 px-4 sm:px-8 lg:px-16 w-full font-serif space-y-6">
-      <div className="text-xs font-mono text-stone-500">
-        <Link href="/" className="hover:underline">domain</Link>
-        {' / '}
-        <span className="text-black dark:text-white font-bold">research</span>
+    <AccessGuard category="research">
+      <div className="py-8 px-4 sm:px-8 lg:px-16 w-full font-serif space-y-6">
+        <div className="text-xs font-mono text-stone-500">
+          <Link href="/" className="hover:underline">domain</Link>
+          {' / '}
+          <span className="text-black dark:text-white font-bold">research</span>
+        </div>
+
+        <div className="border-b-2 border-stone-800 dark:border-stone-200 pb-3">
+          <h1 className="text-2xl font-bold text-black dark:text-white mb-1">
+            PEER-REVIEWED RESEARCH ARCHIVE
+          </h1>
+          <p className="text-xs font-mono text-stone-600 dark:text-stone-400">
+            INDEX OF PUBLISHED JOURNAL PAPERS, ELECTROMAGNETIC FORMULATIONS, AND SOLID-STATE DISCOVERIES.
+          </p>
+        </div>
+
+        <div className="divide-y divide-stone-200 dark:divide-stone-800">
+          {RESEARCH_PAPERS.map((paper) => (
+            <article key={paper.id} className="py-5 space-y-2 font-serif">
+              <div className="flex items-baseline justify-between text-xs font-mono text-stone-500">
+                <span className="font-bold text-black dark:text-white">[{paper.journal.toUpperCase()}]</span>
+                <span>Published: {paper.date}</span>
+              </div>
+
+              <h3 className="text-lg font-bold text-black dark:text-white">
+                {paper.title}
+              </h3>
+
+              <p className="text-xs text-stone-800 dark:text-stone-300 leading-relaxed">
+                {paper.abstract}
+              </p>
+
+              <div className="text-xs font-mono text-stone-500 flex items-center justify-between pt-2">
+                <span>Authors: {paper.authors}</span>
+                <span className="text-blue-900 dark:text-blue-400 underline">
+                  DOI: {paper.doi} &rarr;
+                </span>
+              </div>
+            </article>
+          ))}
+        </div>
       </div>
-
-      <div className="border-b-2 border-stone-800 dark:border-stone-200 pb-3">
-        <h1 className="text-2xl font-bold text-black dark:text-white mb-1">
-          PEER-REVIEWED RESEARCH ARCHIVE
-        </h1>
-        <p className="text-xs font-mono text-stone-600 dark:text-stone-400">
-          INDEX OF PUBLISHED JOURNAL PAPERS, ELECTROMAGNETIC FORMULATIONS, AND SOLID-STATE DISCOVERIES.
-        </p>
-      </div>
-
-      <div className="divide-y divide-stone-200 dark:divide-stone-800">
-        {RESEARCH_PAPERS.map((paper) => (
-          <article key={paper.id} className="py-5 space-y-2 font-serif">
-            <div className="flex items-baseline justify-between text-xs font-mono text-stone-500">
-              <span className="font-bold text-black dark:text-white">[{paper.journal.toUpperCase()}]</span>
-              <span>Published: {paper.date}</span>
-            </div>
-
-            <h3 className="text-lg font-bold text-black dark:text-white">
-              {paper.title}
-            </h3>
-
-            <p className="text-xs text-stone-800 dark:text-stone-300 leading-relaxed">
-              {paper.abstract}
-            </p>
-
-            <div className="text-xs font-mono text-stone-500 flex items-center justify-between pt-2">
-              <span>Authors: {paper.authors}</span>
-              <span className="text-blue-900 dark:text-blue-400 underline">
-                DOI: {paper.doi} &rarr;
-              </span>
-            </div>
-          </article>
-        ))}
-      </div>
-    </div>
+    </AccessGuard>
   );
 }

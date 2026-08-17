@@ -7,6 +7,7 @@ import Hero from '../components/Hero';
 import ResourceCard from '../components/ResourceCard';
 import ProjectCard from '../components/ProjectCard';
 import PostCard from '../components/PostCard';
+import SetPasswordModal from '../components/SetPasswordModal';
 import { useAppSelector } from '../hooks/useRedux';
 import { FEATURED_PUBLICATIONS } from '../constants/featuredPublications';
 import { ANNOUNCEMENTS } from '../constants/announcements';
@@ -21,6 +22,9 @@ export default function Home() {
 
   return (
     <div className="w-full px-4 sm:px-8 lg:px-16 py-4 space-y-8 font-serif">
+      {/* Google OAuth Password Creation Modal Prompt */}
+      <SetPasswordModal />
+
       <Hero />
 
       {/* Quick Category Directory Index Bar */}

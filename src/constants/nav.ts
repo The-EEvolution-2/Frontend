@@ -25,23 +25,11 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   { label: 'Research', href: '/research' },
-  {
-    label: 'Projects',
-    href: '/projects',
-    subItems: [
-      { label: 'Hardware & Circuits', href: '/projects?filter=hardware' },
-      { label: 'Embedded Systems', href: '/projects?filter=embedded' },
-      { label: 'IoT & Telemetry', href: '/projects?filter=iot' },
-    ],
-  },
+  { label: 'Projects', href: '/projects' },
   {
     label: 'Software',
     href: '/software',
     subItems: [
-      { label: 'Analysis & CAD', href: '/software?category=cad' },
-      { label: 'Firmware & Debug', href: '/software?category=firmware' },
-      { label: 'Magnetics & Power', href: '/software?category=power' },
-      { label: 'Digital Logic & HDL', href: '/software?category=hdl' },
       { label: 'Downloads', href: '/software?category=downloads' },
       { label: 'Tutorial', href: '/software?category=tutorial' },
     ],
@@ -52,7 +40,6 @@ export const NAV_ITEMS: NavItem[] = [
     href: '/community',
     subItems: [
       { label: 'Discussions & Q&A', href: '/community?tab=discussions' },
-      { label: 'Peer Review', href: '/community?tab=reviews' },
       { label: 'Announcements', href: '/community?tab=announcements' },
     ],
   },
