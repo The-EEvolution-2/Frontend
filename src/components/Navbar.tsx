@@ -6,15 +6,87 @@ import { usePathname } from 'next/navigation';
 import { NAV_ITEMS } from '../constants/nav';
 import ThemeToggle from './ThemeToggle';
 import FontSizeControl from './FontSizeControl';
-import { useAppSelector } from '../hooks/useRedux';
+import { supabase } from '../lib/supabaseClient';
 import { ChevronDown, Menu, X, User } from 'lucide-react';
 
 export default function Navbar() {
   const pathname = usePathname();
-  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  const [userName, setUserName] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const navRef = useRef<HTMLDivElement>(null);
+
+  // Fetch logged in user details directly from Supabase session
+  useEffect(() => {
+    async function checkAuthSession() {
+      // 1. Check guest user in localStorage
+      const guestData = localStorage.getItem('ee_guest_user');
+      if (guestData) {
+        try {
+          const parsed = JSON.parse(guestData);
+          setUserName(parsed.full_name || 'Guest User');
+          setIsAuthenticated(true);
+          return;
+        } catch {
+          // ignore
+        }
+      }
+
+      // 2. Check Supabase Auth Session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session && session.user) {
+        setIsAuthenticated(true);
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', session.user.id)
+          .single();
+
+        const nameToShow = profile?.full_name ||
+          session.user.user_metadata?.full_name ||
+          session.user.user_metadata?.name ||
+          session.user.email?.split('@')[0] ||
+          'Member';
+
+        setUserName(nameToShow);
+      } else {
+        setIsAuthenticated(false);
+        setUserName(null);
+      }
+    }
+
+    checkAuthSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session && session.user) {
+        setIsAuthenticated(true);
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', session.user.id)
+          .single();
+
+        const nameToShow = profile?.full_name ||
+          session.user.user_metadata?.full_name ||
+          session.user.user_metadata?.name ||
+          session.user.email?.split('@')[0] ||
+          'Member';
+
+        setUserName(nameToShow);
+      } else {
+        const guestData = localStorage.getItem('ee_guest_user');
+        if (!guestData) {
+          setIsAuthenticated(false);
+          setUserName(null);
+        }
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -28,17 +100,17 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b border-blue-900/40 dark:border-blue-800/60 bg-[#1E293B] dark:bg-[#0F172A] text-slate-100 py-3.5 transition-colors shadow-md">
-        <div className="w-full px-4 sm:px-8 lg:px-16 flex items-center justify-between font-serif">
+      <header className="sticky top-0 z-40 w-full border-b border-stone-200 dark:border-stone-800 bg-[#FCFCF9] dark:bg-[#141414] py-3.5 transition-colors shadow-sm text-stone-900 dark:text-stone-100 font-sans">
+        <div className="w-full px-4 sm:px-8 lg:px-16 flex items-center justify-between">
           {/* Left: Brand */}
           <div className="flex-shrink-0">
-            <Link href="/" className="font-bold text-xl text-white flex items-center gap-2 tracking-wide">
+            <Link href="/" className="font-bold text-lg text-black dark:text-white flex items-center gap-2 tracking-tight">
               <span>EEvolution 2.0</span>
             </Link>
           </div>
 
           {/* Center-Aligned Desktop Navigation Bar */}
-          <div className="hidden md:flex items-center justify-center flex-grow mx-8 text-sm" ref={navRef}>
+          <div className="hidden md:flex items-center justify-center flex-grow mx-8 text-xs font-medium" ref={navRef}>
             <nav className="flex items-center gap-6">
               {NAV_ITEMS.map((item) => {
                 const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
@@ -50,8 +122,8 @@ export default function Navbar() {
                     <div key={item.href} className="relative">
                       <button
                         onClick={() => setOpenDropdown(isDropdownOpen ? null : item.label)}
-                        className={`flex items-center gap-1 font-serif transition-colors ${
-                          isActive ? 'font-bold underline text-amber-300' : 'text-slate-300 hover:text-amber-300 hover:underline'
+                        className={`flex items-center gap-1 transition-colors ${
+                          isActive ? 'font-bold text-black dark:text-white border-b-2 border-stone-800 dark:border-stone-200 pb-0.5' : 'text-stone-600 dark:text-stone-400 hover:text-black dark:hover:text-white'
                         }`}
                       >
                         <span>{item.label}</span>
@@ -60,11 +132,11 @@ export default function Navbar() {
 
                       {/* Dropdown Menu */}
                       {isDropdownOpen && (
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-52 bg-[#1E293B] dark:bg-[#0F172A] border border-slate-700 text-slate-100 shadow-2xl py-2 z-50 font-serif text-xs rounded-md">
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-52 bg-white dark:bg-[#181818] border border-stone-200 dark:border-stone-800 shadow-xl py-2 z-50 text-xs rounded-lg">
                           <Link
                             href={item.href}
                             onClick={() => setOpenDropdown(null)}
-                            className="block px-4 py-2 text-amber-300 hover:bg-slate-800 font-bold border-b border-slate-700"
+                            className="block px-4 py-2 text-stone-900 dark:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800 font-bold border-b border-stone-100 dark:border-stone-800"
                           >
                             All {item.label} Index
                           </Link>
@@ -73,7 +145,7 @@ export default function Navbar() {
                               key={sub.href}
                               href={sub.href}
                               onClick={() => setOpenDropdown(null)}
-                              className="block px-4 py-2 text-slate-300 hover:bg-slate-800 hover:text-white"
+                              className="block px-4 py-2 text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-black dark:hover:text-white"
                             >
                               {sub.label}
                             </Link>
@@ -89,7 +161,7 @@ export default function Navbar() {
                     key={item.href}
                     href={item.href}
                     className={`transition-colors ${
-                      isActive ? 'font-bold underline text-amber-300' : 'text-slate-300 hover:text-amber-300 hover:underline'
+                      isActive ? 'font-bold text-black dark:text-white border-b-2 border-stone-800 dark:border-stone-200 pb-0.5' : 'text-stone-600 dark:text-stone-400 hover:text-black dark:hover:text-white'
                     }`}
                   >
                     {item.label}
@@ -99,18 +171,18 @@ export default function Navbar() {
             </nav>
           </div>
 
-          {/* Right: Controls & Profile */}
-          <div className="hidden md:flex items-center gap-4 flex-shrink-0 text-slate-100">
+          {/* Right: Controls & User Profile Name */}
+          <div className="hidden md:flex items-center gap-4 flex-shrink-0 text-xs font-sans">
             <FontSizeControl />
-            <span className="text-slate-600">|</span>
+            <span className="text-stone-300 dark:text-stone-800">|</span>
             <ThemeToggle />
-            <span className="text-slate-600">|</span>
+            <span className="text-stone-300 dark:text-stone-800">|</span>
             <Link
               href={isAuthenticated ? '/profile' : '/login'}
-              className="text-slate-100 hover:text-white hover:underline font-mono text-xs flex items-center gap-1.5 bg-blue-900/60 hover:bg-blue-800 border border-blue-700/60 px-3 py-1.5 rounded transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors font-medium"
             >
-              <User className="w-3.5 h-3.5 text-amber-300" />
-              <span>{isAuthenticated ? 'Profile' : 'Sign In'}</span>
+              <User className="w-3.5 h-3.5 text-stone-500" />
+              <span>{isAuthenticated && userName ? userName : 'Sign In'}</span>
             </Link>
           </div>
 
@@ -121,7 +193,7 @@ export default function Navbar() {
             <button
               onClick={() => setSidebarOpen(true)}
               aria-label="Open Navigation Menu"
-              className="p-1.5 border border-slate-700 rounded-md text-white hover:bg-slate-800"
+              className="p-1.5 border border-stone-300 dark:border-stone-700 rounded-md text-stone-900 dark:text-stone-100"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -134,52 +206,52 @@ export default function Navbar() {
         <div className="fixed inset-0 z-50 flex md:hidden">
           <div
             onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 bg-black/60 transition-opacity"
+            className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity"
           />
 
-          <div className="relative ml-auto w-4/5 max-w-xs h-full bg-[#1E293B] text-slate-100 border-l border-slate-700 p-6 flex flex-col justify-between font-serif z-50 shadow-2xl overflow-y-auto">
+          <div className="relative ml-auto w-4/5 max-w-xs h-full bg-[#FCFCF9] dark:bg-[#141414] border-l border-stone-200 dark:border-stone-800 p-6 flex flex-col justify-between font-sans z-50 shadow-2xl overflow-y-auto">
             <div>
-              <div className="flex items-center justify-between border-b border-slate-700 pb-4 mb-6">
-                <span className="font-bold text-lg text-white">
+              <div className="flex items-center justify-between border-b border-stone-200 dark:border-stone-800 pb-4 mb-6">
+                <span className="font-bold text-base text-black dark:text-white">
                   EEvolution 2.0
                 </span>
                 <button
                   onClick={() => setSidebarOpen(false)}
-                  className="p-1 text-slate-400 hover:text-white"
+                  className="p-1 text-stone-400 hover:text-black dark:hover:text-white"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="text-xs font-mono text-slate-400 mb-4 uppercase">
+              <div className="text-[11px] font-mono text-stone-500 mb-4 uppercase font-semibold">
                 Navigation Archive
               </div>
 
-              <nav className="flex flex-col gap-3 text-base">
+              <nav className="flex flex-col gap-3 text-sm">
                 {NAV_ITEMS.map((item) => {
                   const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
                   const hasSubItems = item.subItems && item.subItems.length > 0;
 
                   return (
-                    <div key={item.href} className="border-b border-slate-800 pb-2">
+                    <div key={item.href} className="border-b border-stone-100 dark:border-stone-800/60 pb-2">
                       <Link
                         href={item.href}
                         onClick={() => setSidebarOpen(false)}
                         className={`block py-0.5 ${
-                          isActive ? 'font-bold underline text-amber-300' : 'text-slate-300 hover:text-amber-300 hover:underline'
+                          isActive ? 'font-bold text-black dark:text-white' : 'text-stone-700 dark:text-stone-300 hover:text-black dark:hover:text-white'
                         }`}
                       >
                         {item.label}
                       </Link>
 
                       {hasSubItems && (
-                        <div className="pl-3 mt-1 flex flex-col gap-1 text-xs font-mono">
+                        <div className="pl-3 mt-1.5 flex flex-col gap-1.5 text-xs text-stone-500 dark:text-stone-400">
                           {item.subItems?.map((sub) => (
                             <Link
                               key={sub.href}
                               href={sub.href}
                               onClick={() => setSidebarOpen(false)}
-                              className="text-slate-400 hover:text-white hover:underline py-0.5"
+                              className="hover:text-black dark:hover:text-white py-0.5"
                             >
                               &rarr; {sub.label}
                             </Link>
@@ -192,18 +264,18 @@ export default function Navbar() {
               </nav>
             </div>
 
-            <div className="border-t border-slate-700 pt-4 space-y-3 font-mono text-xs">
+            <div className="border-t border-stone-200 dark:border-stone-800 pt-4 space-y-3 font-sans text-xs">
               <div className="flex items-center justify-between">
-                <span>Font Size:</span>
+                <span className="text-stone-500">Font Size:</span>
                 <FontSizeControl />
               </div>
               <Link
                 href={isAuthenticated ? '/profile' : '/login'}
                 onClick={() => setSidebarOpen(false)}
-                className="text-slate-200 hover:underline flex items-center gap-1"
+                className="flex items-center justify-center gap-2 p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 rounded-lg text-stone-900 dark:text-stone-100 font-medium"
               >
-                <User className="w-3.5 h-3.5 text-amber-300" />
-                <span>{isAuthenticated ? 'User Profile' : 'Sign In'}</span>
+                <User className="w-3.5 h-3.5 text-stone-500" />
+                <span>{isAuthenticated && userName ? userName : 'Sign In'}</span>
               </Link>
             </div>
           </div>

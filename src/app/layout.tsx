@@ -4,6 +4,7 @@ import ReduxProvider from '../components/ReduxProvider';
 import LayoutWrapper from '../components/LayoutWrapper';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import TimedLoginPromptModal from '../components/TimedLoginPromptModal';
 
 export const metadata: Metadata = {
   title: 'EEvolution 2.0 - Academic & Technical Archive',
@@ -22,6 +23,7 @@ export default function RootLayout({
           <LayoutWrapper>
             <Navbar />
             <main className="flex-grow">{children}</main>
+            <TimedLoginPromptModal />
             <Footer />
           </LayoutWrapper>
         </ReduxProvider>
