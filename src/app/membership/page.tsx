@@ -1,185 +1,296 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Check, Zap, Sparkles, ShieldCheck } from 'lucide-react';
+import { KeyRound, ShieldCheck, UserCheck, Check, Sparkles, AlertCircle, Copy, CheckCircle2 } from 'lucide-react';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function MembershipPage() {
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+  const [activationKey, setActivationKey] = useState('');
+  const [activating, setActivating] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadSession() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        setCurrentUser({
+          id: session.user.id,
+          name: profile?.full_name || session.user.email?.split('@')[0] || 'Member',
+          is_member: profile?.is_member || false,
+          duration: profile?.membership_duration || null,
+        });
+      }
+    }
+
+    loadSession();
+  }, []);
+
+  const handleActivateKey = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activationKey.trim()) return;
+
+    if (!currentUser) {
+      setStatusMessage({
+        type: 'error',
+        text: 'Please sign in to your account first before activating your membership key.',
+      });
+      return;
+    }
+
+    setActivating(true);
+    setStatusMessage(null);
+
+    try {
+      const cleanKey = activationKey.trim().toUpperCase();
+
+      // 1. Verify key in activation_keys table
+      const { data: keyRecord, error: keyErr } = await supabase
+        .from('activation_keys')
+        .select('*')
+        .eq('key_code', cleanKey)
+        .single();
+
+      if (keyErr || !keyRecord) {
+        throw new Error('Invalid activation key. Please double-check with the department treasurer.');
+      }
+
+      if (keyRecord.is_used) {
+        throw new Error('This activation key has already been redeemed.');
+      }
+
+      // 2. Mark key as used
+      const { error: markErr } = await supabase
+        .from('activation_keys')
+        .update({
+          is_used: true,
+          used_by_user_id: currentUser.id,
+          used_at: new Date().toISOString(),
+        })
+        .eq('id', keyRecord.id);
+
+      if (markErr) throw markErr;
+
+      // 3. Update user profile membership status
+      const { error: profileErr } = await supabase
+        .from('profiles')
+        .update({
+          is_member: true,
+          membership_duration: keyRecord.duration || '1 Year',
+        })
+        .eq('id', currentUser.id);
+
+      if (profileErr) throw profileErr;
+
+      setCurrentUser((prev: any) => ({
+        ...prev,
+        is_member: true,
+        duration: keyRecord.duration || '1 Year',
+      }));
+
+      setStatusMessage({
+        type: 'success',
+        text: `Success! Your ${keyRecord.duration || '1 Year'} Membership Pass is now active.`,
+      });
+      setActivationKey('');
+    } catch (err: unknown) {
+      setStatusMessage({
+        type: 'error',
+        text: err instanceof Error ? err.message : 'Activation failed. Please contact the treasurer.',
+      });
+    } finally {
+      setActivating(false);
+    }
+  };
+
+  const copyDemoKey = (key: string) => {
+    navigator.clipboard.writeText(key);
+    setCopiedKey(key);
+    setActivationKey(key);
+    setTimeout(() => setCopiedKey(null), 2000);
+  };
 
   return (
-    <div className="py-8 px-4 sm:px-8 lg:px-16 w-full font-sans space-y-8 text-stone-900 dark:text-stone-100">
-      {/* Breadcrumb Path */}
+    <div className="py-8 px-4 sm:px-8 lg:px-16 w-full font-sans space-y-8 text-stone-900 dark:text-stone-100 max-w-5xl mx-auto">
+      {/* Breadcrumb Navigation */}
       <div className="text-xs font-mono text-stone-500 border-b border-stone-200 dark:border-stone-800 pb-2">
         <Link href="/" className="hover:underline">domain</Link>
         {' / '}
         <span className="text-black dark:text-white font-bold">membership</span>
       </div>
 
-      {/* Header Banner */}
-      <div className="text-center max-w-3xl mx-auto space-y-3 pt-2">
+      {/* Page Title & Instructions */}
+      <div className="text-center max-w-2xl mx-auto space-y-3">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-300 font-mono text-xs font-bold uppercase">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>AFORDABLE SCHOLAR &amp; PRACTICE SET ACCESS</span>
+          <KeyRound className="w-3.5 h-3.5" />
+          <span>DEPARTMENT TREASURER ACTIVATION KEY SYSTEM</span>
         </div>
 
         <h1 className="text-3xl sm:text-4xl font-extrabold text-black dark:text-white tracking-tight">
-          Upgrade Your Electrical Engineering Membership
+          Activate Your Academic Membership
         </h1>
 
-        <p className="text-stone-600 dark:text-stone-400 text-sm max-w-2xl mx-auto leading-relaxed">
-          Access complete practice set solutions, hardware project schematics, downloadable software tools, and peer-reviewed research archives.
+        <p className="text-stone-600 dark:text-stone-400 text-sm leading-relaxed">
+          Direct website online payments are disabled. To obtain your membership activation key, pay the official fees directly to the department treasurer. Enter your key below to redeem your pass.
         </p>
-
-        {/* Monthly / Yearly Billing Toggle Switch */}
-        <div className="pt-4 flex items-center justify-center gap-3 font-mono text-xs">
-          <span className={`font-medium ${billingCycle === 'monthly' ? 'text-black dark:text-white font-bold' : 'text-stone-500'}`}>
-            Monthly Billing
-          </span>
-
-          <button
-            onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')}
-            className="relative w-14 h-7 bg-stone-300 dark:bg-stone-800 rounded-full p-1 transition-colors duration-200 focus:outline-none"
-          >
-            <div
-              className={`w-5 h-5 bg-stone-900 dark:bg-stone-100 rounded-full shadow-md transform transition-transform duration-200 ${
-                billingCycle === 'yearly' ? 'translate-x-7' : 'translate-x-0'
-              }`}
-            />
-          </button>
-
-          <span className={`font-medium flex items-center gap-1.5 ${billingCycle === 'yearly' ? 'text-black dark:text-white font-bold' : 'text-stone-500'}`}>
-            Annual Plan
-            <span className="px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 text-[10px] font-bold uppercase">
-              Save 20%
-            </span>
-          </span>
-        </div>
       </div>
 
-      {/* Pricing Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto pt-4">
-        {/* Tier 1: Free Basic Access */}
-        <div className="border border-stone-300 dark:border-stone-800 bg-[#FCFCF9] dark:bg-[#141414] rounded-xl p-6 sm:p-8 space-y-6 flex flex-col justify-between shadow-sm">
+      {/* Main 2-Column Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-2">
+        {/* Column 1: Key Activation Input Box */}
+        <div className="border-2 border-stone-800 dark:border-stone-200 bg-[#FCFCF9] dark:bg-[#141414] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl flex flex-col justify-between">
           <div className="space-y-4">
-            <div className="flex justify-between items-start">
-              <div>
-                <span className="font-mono text-xs text-stone-500 font-bold uppercase">FREE ACCESS</span>
-                <h3 className="text-xl font-bold text-black dark:text-white mt-1">
-                  Basic Student Plan
-                </h3>
-              </div>
-              <span className="px-2.5 py-1 rounded-full bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-mono text-[10px] font-bold">
-                COMPLIMENTARY
+            <div className="border-b border-stone-200 dark:border-stone-800 pb-3">
+              <span className="font-mono text-xs text-blue-900 dark:text-blue-400 font-bold uppercase block">
+                [ REDEEM TREASURER KEY ]
               </span>
+              <h3 className="text-xl font-bold text-black dark:text-white mt-1">
+                Enter Activation Key
+              </h3>
             </div>
 
-            <div className="pt-2 border-b border-stone-200 dark:border-stone-800 pb-4">
-              <span className="text-3xl font-extrabold text-black dark:text-white">₹0</span>
-              <span className="text-stone-500 text-xs font-mono"> / forever</span>
-            </div>
-
-            <ul className="space-y-3 text-xs text-stone-700 dark:text-stone-300 font-sans">
-              <li className="flex items-start gap-2.5">
-                <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
-                <span>Access to free general documentation &amp; history articles</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
-                <span>View open hardware projects &amp; circuit repositories</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
-                <span>Community correspondence &amp; discussion threads</span>
-              </li>
-            </ul>
-          </div>
-
-          <div className="pt-6">
-            <Link
-              href="/login"
-              className="w-full py-3 border border-stone-400 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 font-bold text-xs uppercase tracking-wider text-center block rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
-            >
-              Current Free Access
-            </Link>
-          </div>
-        </div>
-
-        {/* Tier 2: Premium Scholar Plan (₹49/month or ₹469/year) */}
-        <div className="border-2 border-stone-900 dark:border-stone-100 bg-[#FCFCF9] dark:bg-[#161616] rounded-xl p-6 sm:p-8 space-y-6 flex flex-col justify-between shadow-xl relative">
-          <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-mono text-[10px] font-bold uppercase rounded-full tracking-wider flex items-center gap-1 shadow-md">
-            <Zap className="w-3 h-3 text-amber-400 dark:text-amber-600 fill-amber-400 dark:fill-amber-600" />
-            MOST POPULAR
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex justify-between items-start">
-              <div>
-                <span className="font-mono text-xs text-blue-900 dark:text-blue-400 font-bold uppercase">FULL ARCHIVE PASS</span>
-                <h3 className="text-xl font-bold text-black dark:text-white mt-1">
-                  Premium Scholar Pass
-                </h3>
+            {/* Current Member Status Notification */}
+            {currentUser?.is_member && (
+              <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-300 text-xs font-mono flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 flex-shrink-0 text-emerald-600 dark:text-emerald-400" />
+                <span>Active Member Pass: <strong>{currentUser.duration}</strong></span>
               </div>
-              <span className="px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-mono text-[10px] font-bold border border-emerald-300 dark:border-emerald-800">
-                UNLIMITED
-              </span>
-            </div>
+            )}
 
-            <div className="pt-2 border-b border-stone-200 dark:border-stone-800 pb-4">
-              {billingCycle === 'monthly' ? (
-                <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-extrabold text-black dark:text-white">₹49</span>
-                  <span className="text-stone-500 text-xs font-mono"> / month</span>
-                </div>
-              ) : (
-                <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-extrabold text-black dark:text-white">₹469</span>
-                  <span className="text-stone-500 text-xs font-mono"> / year</span>
-                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold font-mono ml-2">(₹39/mo)</span>
+            <form onSubmit={handleActivateKey} className="space-y-4 font-sans text-xs">
+              <div>
+                <label className="block text-stone-600 dark:text-stone-400 font-medium mb-1.5">
+                  Activation Key Code
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. EE2026-KEY-XXXX-XXXX"
+                  value={activationKey}
+                  onChange={(e) => setActivationKey(e.target.value)}
+                  className="w-full p-3 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-xl font-mono text-sm tracking-wider uppercase focus:outline-none focus:ring-2 focus:ring-stone-500"
+                />
+              </div>
+
+              {statusMessage && (
+                <div
+                  className={`p-3 rounded-xl text-xs font-mono flex items-start gap-2 ${
+                    statusMessage.type === 'success'
+                      ? 'bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 text-emerald-900 dark:text-emerald-300'
+                      : 'bg-rose-50 dark:bg-rose-950/60 border border-rose-300 text-rose-900 dark:text-rose-300'
+                  }`}
+                >
+                  <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  <span>{statusMessage.text}</span>
                 </div>
               )}
-            </div>
 
-            <ul className="space-y-3 text-xs text-stone-800 dark:text-stone-200 font-sans">
-              <li className="flex items-start gap-2.5">
-                <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
-                <span className="font-bold text-black dark:text-white">Unlimited access to practice set books &amp; solution manuals</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
-                <span className="font-bold text-black dark:text-white">Full download access for software utilities, patch notes &amp; installers</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
-                <span>Complete hardware project schematics &amp; embedded code repos</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
-                <span>Peer-reviewed IEEE research paper downloads</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
-                <span>Priority manuscript review submission rights</span>
-              </li>
-            </ul>
+              <button
+                type="submit"
+                disabled={activating || !activationKey.trim()}
+                className="w-full py-3 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-mono text-xs font-extrabold uppercase rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-lg disabled:opacity-50"
+              >
+                <KeyRound className="w-4 h-4" />
+                <span>{activating ? 'Verifying Key...' : 'Activate Membership Now'}</span>
+              </button>
+            </form>
           </div>
 
-          <div className="pt-6">
-            <Link
-              href="/login"
-              className="w-full py-3 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-extrabold text-xs uppercase tracking-wider text-center block rounded-lg hover:opacity-90 transition-opacity shadow-lg"
-            >
-              Get Premium Access (₹{billingCycle === 'monthly' ? '49' : '469'})
-            </Link>
+          <div className="pt-4 border-t border-stone-200 dark:border-stone-800 text-[11px] font-mono text-stone-500 space-y-1">
+            <p className="font-bold text-black dark:text-white">&gt; Key Verification Protocol:</p>
+            <p>Every activation code is uniquely issued by the treasurer and can only be redeemed once per student account.</p>
           </div>
         </div>
-      </div>
 
-      {/* Guarantee Footer Banner */}
-      <div className="max-w-2xl mx-auto p-4 border border-stone-200 dark:border-stone-800 rounded-lg text-center space-y-1 font-mono text-xs text-stone-500">
-        <ShieldCheck className="w-5 h-5 mx-auto text-emerald-600 dark:text-emerald-400" />
-        <p className="font-bold text-black dark:text-white">Instant Activation • Cancel Anytime</p>
-        <p className="text-[11px]">All student payments are protected under institutional access rules.</p>
+        {/* Column 2: How to Get Key & Treasurer Contact */}
+        <div className="border border-stone-300 dark:border-stone-800 bg-[#FCFCF9] dark:bg-[#161616] rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm flex flex-col justify-between">
+          <div className="space-y-4">
+            <div className="border-b border-stone-200 dark:border-stone-800 pb-3">
+              <span className="font-mono text-xs text-stone-500 font-bold uppercase block">
+                OFFICIAL PAYMENT PROCEDURE
+              </span>
+              <h3 className="text-xl font-bold text-black dark:text-white mt-1">
+                How to Obtain an Activation Key
+              </h3>
+            </div>
+
+            <ol className="space-y-4 text-xs font-sans text-stone-700 dark:text-stone-300">
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-bold font-mono text-xs flex items-center justify-center flex-shrink-0">
+                  1
+                </span>
+                <div>
+                  <h4 className="font-bold text-black dark:text-white">Contact Department Treasurer</h4>
+                  <p className="text-stone-500 leading-relaxed mt-0.5">
+                    Visit the Electrical Engineering Department office or contact the student council treasurer.
+                  </p>
+                </div>
+              </li>
+
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-bold font-mono text-xs flex items-center justify-center flex-shrink-0">
+                  2
+                </span>
+                <div>
+                  <h4 className="font-bold text-black dark:text-white">Pay Fee Amount</h4>
+                  <p className="text-stone-500 leading-relaxed mt-0.5">
+                    Pay <strong>₹49 (1 Month Pass)</strong> or <strong>₹469 (1 Year Annual Pass)</strong> directly via cash/UPI.
+                  </p>
+                </div>
+              </li>
+
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-bold font-mono text-xs flex items-center justify-center flex-shrink-0">
+                  3
+                </span>
+                <div>
+                  <h4 className="font-bold text-black dark:text-white">Receive Your Unique Activation Key</h4>
+                  <p className="text-stone-500 leading-relaxed mt-0.5">
+                    The treasurer will issue an official key code (e.g. <code className="font-mono text-black dark:text-white bg-stone-200 dark:bg-stone-800 px-1 py-0.5 rounded">EE2026-KEY-XXXX-XXXX</code>).
+                  </p>
+                </div>
+              </li>
+            </ol>
+
+            {/* Test Keys Box */}
+            <div className="p-4 rounded-xl bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 space-y-2">
+              <span className="font-mono text-[11px] font-bold text-stone-500 uppercase block">
+                [&nbsp;DEMO TREASURER ISSUED KEYS FOR TESTING&nbsp;]
+              </span>
+              <div className="space-y-1.5 font-mono text-xs">
+                {[
+                  { code: 'EE2026-KEY-9821-4401', dur: '1 Month Pass' },
+                  { code: 'EE2026-KEY-7712-9903', dur: '1 Year Pass' },
+                ].map((item) => (
+                  <button
+                    key={item.code}
+                    onClick={() => copyDemoKey(item.code)}
+                    className="w-full p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 rounded-lg flex items-center justify-between hover:border-stone-500 transition-colors"
+                  >
+                    <span>{item.code} ({item.dur})</span>
+                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-bold flex items-center gap-1">
+                      <Copy className="w-3 h-3" />
+                      {copiedKey === item.code ? 'Copied!' : 'Click to Use'}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-stone-200 dark:border-stone-800 flex items-center gap-2 text-xs font-mono text-stone-500">
+            <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+            <span>Authorized by Department of Electrical Engineering</span>
+          </div>
+        </div>
       </div>
     </div>
   );
