@@ -3,17 +3,6 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
-import {
-  UserCheck,
-  Mail,
-  Building2,
-  Phone,
-  GraduationCap,
-  Hash,
-  Layers,
-  LogOut,
-  ShieldCheck,
-} from 'lucide-react';
 
 interface ProfileCardProps {
   user: {
@@ -45,96 +34,76 @@ export default function ProfileCard({ user }: ProfileCardProps) {
   const isFaculty = user.role?.toLowerCase().includes('faculty') || user.role?.toLowerCase().includes('teacher');
 
   return (
-    <div className="bg-[#FCFCF9] dark:bg-[#161616] border border-stone-300 dark:border-stone-800 rounded-xl p-6 sm:p-8 font-sans shadow-lg space-y-6">
-      {/* Top Banner Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-stone-200 dark:border-stone-800 pb-6">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-full bg-slate-800 text-amber-300 flex items-center justify-center font-bold text-2xl shadow-inner border border-slate-700">
-            {user.name.charAt(0).toUpperCase()}
+    <div className="bg-[#FCFCF9] dark:bg-[#121212] border-2 border-stone-800 dark:border-stone-200 p-6 font-mono text-xs text-stone-900 dark:text-stone-100 space-y-6">
+      {/* Old-School Header Bar */}
+      <div className="border-b-2 border-stone-800 dark:border-stone-200 pb-4 flex flex-wrap items-baseline justify-between gap-4">
+        <div>
+          <div className="text-[11px] text-stone-500 font-bold uppercase">
+            [ EEVOLUTION 2.0 ACADEMIC RECORD ]
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-bold text-black dark:text-white">
-                {user.name}
-              </h2>
-              <span className="flex items-center gap-1 text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-900 dark:text-blue-300 font-bold uppercase border border-blue-200 dark:border-blue-800">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                {user.role}
-              </span>
-            </div>
-            <p className="text-xs text-stone-500 font-mono flex items-center gap-1.5 mt-1">
-              <Mail className="w-3.5 h-3.5" />
-              <span>{user.email}</span>
-            </p>
-          </div>
+          <h2 className="text-xl font-bold uppercase text-black dark:text-white mt-1">
+            MEMBER: {user.name.toUpperCase()}
+          </h2>
         </div>
 
         <button
           onClick={handleLogout}
-          className="flex items-center gap-1.5 px-4 py-2 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900 text-xs font-mono font-bold rounded-lg transition-colors"
+          className="px-4 py-1.5 border-2 border-stone-800 dark:border-stone-200 bg-stone-900 text-white dark:bg-stone-100 dark:text-black font-bold uppercase hover:underline"
         >
-          <LogOut className="w-4 h-4" />
-          <span>Sign Out</span>
+          [ LOGOUT SESSION ]
         </button>
       </div>
 
-      {/* Grid of Profile Details */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
-        <div className="p-4 bg-[#F5F5F0] dark:bg-[#1C1C1C] border border-stone-200 dark:border-stone-800 rounded-lg space-y-1">
-          <span className="text-stone-500 flex items-center gap-1.5 text-[11px]">
-            <Building2 className="w-3.5 h-3.5 text-slate-500" />
-            DEPARTMENT
-          </span>
-          <p className="font-bold text-black dark:text-white text-sm">
-            {user.department || 'Department of Electrical Engineering'}
-          </p>
+      {/* Tabular Data View */}
+      <div className="divide-y divide-stone-300 dark:divide-stone-800 border border-stone-400 dark:border-stone-700 bg-white dark:bg-stone-900">
+        <div className="p-3 flex justify-between">
+          <span className="font-bold text-stone-500">ACADEMIC ROLE:</span>
+          <span className="font-bold text-black dark:text-white uppercase">{user.role}</span>
+        </div>
+
+        <div className="p-3 flex justify-between">
+          <span className="font-bold text-stone-500">EMAIL ADDRESS:</span>
+          <span className="text-stone-900 dark:text-stone-200">{user.email}</span>
+        </div>
+
+        <div className="p-3 flex justify-between">
+          <span className="font-bold text-stone-500">DEPARTMENT:</span>
+          <span className="text-stone-900 dark:text-stone-200">{user.department || 'Department of Electrical Engineering'}</span>
         </div>
 
         {isFaculty && user.mobile_no && (
-          <div className="p-4 bg-[#F5F5F0] dark:bg-[#1C1C1C] border border-stone-200 dark:border-stone-800 rounded-lg space-y-1">
-            <span className="text-stone-500 flex items-center gap-1.5 text-[11px]">
-              <Phone className="w-3.5 h-3.5 text-slate-500" />
-              MOBILE CONTACT (FACULTY)
-            </span>
-            <p className="font-bold text-black dark:text-white text-sm">
-              {user.mobile_no}
-            </p>
+          <div className="p-3 flex justify-between">
+            <span className="font-bold text-stone-500">MOBILE CONTACT (TEACHER):</span>
+            <span className="text-stone-900 dark:text-stone-200">{user.mobile_no}</span>
           </div>
         )}
 
         {isStudent && (
           <>
-            <div className="p-4 bg-[#F5F5F0] dark:bg-[#1C1C1C] border border-stone-200 dark:border-stone-800 rounded-lg space-y-1">
-              <span className="text-stone-500 flex items-center gap-1.5 text-[11px]">
-                <Hash className="w-3.5 h-3.5 text-slate-500" />
-                ROLL NUMBER
-              </span>
-              <p className="font-bold text-black dark:text-white text-sm">
-                {user.roll_number || 'N/A'}
-              </p>
+            <div className="p-3 flex justify-between">
+              <span className="font-bold text-stone-500">ROLL NUMBER:</span>
+              <span className="font-bold text-black dark:text-white">{user.roll_number || 'N/A'}</span>
             </div>
 
-            <div className="p-4 bg-[#F5F5F0] dark:bg-[#1C1C1C] border border-stone-200 dark:border-stone-800 rounded-lg space-y-1">
-              <span className="text-stone-500 flex items-center gap-1.5 text-[11px]">
-                <GraduationCap className="w-3.5 h-3.5 text-slate-500" />
-                BATCH YEAR &amp; GROUP
+            <div className="p-3 flex justify-between">
+              <span className="font-bold text-stone-500">BATCH YEAR &amp; GROUP:</span>
+              <span className="text-stone-900 dark:text-stone-200">
+                BATCH {user.batch_year || '2026'} | GROUP {user.batch_group || '1'}
               </span>
-              <p className="font-bold text-black dark:text-white text-sm">
-                Batch {user.batch_year || '2026'} • Group {user.batch_group || '1'}
-              </p>
             </div>
           </>
         )}
 
-        <div className="p-4 bg-[#F5F5F0] dark:bg-[#1C1C1C] border border-stone-200 dark:border-stone-800 rounded-lg space-y-1 md:col-span-2">
-          <span className="text-stone-500 flex items-center gap-1.5 text-[11px]">
-            <Layers className="w-3.5 h-3.5 text-slate-500" />
-            ACADEMIC BIOGRAPHY &amp; ACCESS SCOPE
-          </span>
-          <p className="text-stone-800 dark:text-stone-300 font-sans leading-relaxed text-xs">
-            {user.bio}
-          </p>
+        <div className="p-3 flex justify-between">
+          <span className="font-bold text-stone-500">ACCOUNT ID (UUID):</span>
+          <span className="text-stone-600 dark:text-stone-400">{user.id}</span>
         </div>
+      </div>
+
+      {/* Biography Block */}
+      <div className="p-4 border border-stone-400 dark:border-stone-800 bg-[#F5F5F0] dark:bg-[#181818] space-y-1">
+        <div className="font-bold text-[11px] text-stone-500 uppercase">&gt; RECORD ACCESS &amp; SCOPE STATEMENT:</div>
+        <p className="text-stone-800 dark:text-stone-300 leading-relaxed">{user.bio}</p>
       </div>
     </div>
   );
