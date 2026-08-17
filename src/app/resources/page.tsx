@@ -29,7 +29,7 @@ export default function ResourcesIndexPage() {
         </p>
       </div>
 
-      {/* Categories Grid */}
+      {/* 7 Categorized Cards with Distinct Primary & Secondary Color Shades */}
       <section className="space-y-4">
         <h2 className="text-sm font-bold font-mono text-stone-600 dark:text-stone-400 uppercase">
           Resource Categories Overview
@@ -39,13 +39,17 @@ export default function ResourcesIndexPage() {
             <Link
               key={cat.slug}
               href={`/resources/${cat.slug}`}
-              className="p-4 border border-stone-300 dark:border-stone-800 bg-[#F8F8F5] dark:bg-[#161616] hover:border-stone-500 transition-colors block space-y-1"
+              className={`p-5 border ${cat.borderLight} ${cat.borderDark} ${cat.bgLight} ${cat.bgDark} rounded-lg hover:shadow-md transition-all block space-y-2 group`}
             >
-              <div className="flex items-baseline justify-between font-mono text-xs text-stone-500">
-                <span className="font-bold text-black dark:text-white">{cat.name.toUpperCase()}</span>
-                <span>Category &rarr;</span>
+              <div className="flex items-baseline justify-between font-mono text-xs">
+                <span className={`font-bold uppercase ${cat.accentTextLight} ${cat.accentTextDark}`}>
+                  {cat.name}
+                </span>
+                <span className={`text-[11px] px-2 py-0.5 rounded font-bold ${cat.badgeBgLight} ${cat.badgeBgDark} ${cat.accentTextLight} ${cat.accentTextDark}`}>
+                  Category &rarr;
+                </span>
               </div>
-              <p className="text-xs text-stone-700 dark:text-stone-300 leading-relaxed">
+              <p className="text-xs text-stone-700 dark:text-stone-300 leading-relaxed font-sans">
                 {cat.description}
               </p>
             </Link>
