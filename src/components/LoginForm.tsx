@@ -56,38 +56,14 @@ export default function LoginForm() {
         .eq('id', user.id)
         .single();
 
-      // If no profile exists, create base profile row and open onboarding
-      if (profileErr || !data) {
-        const { error: insertErr } = await supabase
-          .from('profiles')
-          .insert([
-            {
-              id: user.id,
-              email: user.email,
-              full_name: user.user_metadata?.full_name || user.user_metadata?.name || '',
-              role: 'normal',
-              department,
-            },
-          ]);
-
-        if (insertErr && insertErr.code !== '23505') {
-          console.log('Error creating base profile row:', insertErr);
-        }
-
-        setFullName(user.user_metadata?.full_name || user.user_metadata?.name || '');
-        setEmail(user.email || '');
-        setMode('onboarding');
-      } else if (!data.full_name || !data.role || data.role === 'normal') {
-        // First-time user profile incomplete
-        setFullName(data.full_name || user.user_metadata?.full_name || '');
+      if (profileErr || !data || !data.full_name || !data.role || data.role === 'normal') {
+        setFullName(data?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || '');
         setEmail(user.email || '');
         setMode('onboarding');
       } else {
-        // Complete profile already exists -> redirect to website profile
         router.push('/profile');
       }
-    } catch (err) {
-      console.log('Profile check error:', err);
+    } catch {
       setMode('onboarding');
     }
   };
@@ -148,11 +124,12 @@ export default function LoginForm() {
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('No active user session found');
+      const user = session?.user;
+      if (!user) throw new Error('No active user session found. Please sign in again.');
 
       const profilePayload = {
-        id: session.user.id,
-        email: session.user.email,
+        id: user.id,
+        email: user.email,
         full_name: fullName,
         role,
         mobile_no: role === 'faculty' ? mobileNo : null,
@@ -166,12 +143,13 @@ export default function LoginForm() {
       // Save complete profile to public.profiles table (User Table)
       const { error: profileErr } = await supabase
         .from('profiles')
-        .upsert(profilePayload);
+        .upsert([profilePayload], { onConflict: 'id' });
 
       if (profileErr) throw profileErr;
 
       router.push('/profile');
     } catch (err: unknown) {
+      console.log('Profile save error:', err);
       setError(err instanceof Error ? err.message : 'Failed to save profile details');
     } finally {
       setLoading(false);
