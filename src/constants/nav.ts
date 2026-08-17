@@ -40,7 +40,6 @@ export const NAV_ITEMS: NavItem[] = [
     href: '/community',
     subItems: [
       { label: 'Discussions & Q&A', href: '/community?tab=discussions' },
-      { label: 'Peer Review', href: '/community?tab=reviews' },
       { label: 'Announcements', href: '/community?tab=announcements' },
     ],
   },
