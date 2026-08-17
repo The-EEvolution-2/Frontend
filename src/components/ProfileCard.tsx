@@ -13,7 +13,7 @@ import {
   ShieldCheck,
   Edit3,
   LogOut,
-  Sparkles,
+  BadgeCheck,
 } from 'lucide-react';
 
 interface ProfileCardProps {
@@ -114,8 +114,8 @@ export default function ProfileCard({ user, onProfileUpdate }: ProfileCardProps)
                 {user.email}
               </span>
               <span>•</span>
-              <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold">
-                <Sparkles className="w-3.5 h-3.5" />
+              <span className="flex items-center gap-1 text-stone-700 dark:text-stone-300 font-bold">
+                <BadgeCheck className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 {user.is_member ? `Member (${user.membership_duration || '1 Year'})` : 'Standard Access'}
               </span>
             </div>
