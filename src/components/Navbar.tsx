@@ -15,6 +15,7 @@ export default function Navbar() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [openMobileSubmenu, setOpenMobileSubmenu] = useState<string | null>(null);
   const navRef = useRef<HTMLDivElement>(null);
 
   // Fetch logged in user details directly from Supabase session
@@ -206,7 +207,7 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* Slide-over Side Drawer Overlay for Mobile */}
+      {/* Clean Slide-over Side Drawer for Mobile */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 flex md:hidden">
           <div
@@ -214,17 +215,12 @@ export default function Navbar() {
             className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity"
           />
 
-          <div className="relative ml-auto w-4/5 max-w-xs h-full bg-[#FCFCF9] dark:bg-[#141414] border-l border-stone-200 dark:border-stone-800 p-6 flex flex-col justify-between font-sans z-50 shadow-2xl overflow-y-auto">
+          <div className="relative ml-auto w-4/5 max-w-xs h-full bg-[#FCFCF9] dark:bg-[#141414] border-l border-stone-200 dark:border-stone-800 p-5 flex flex-col justify-between font-sans z-50 shadow-2xl overflow-y-auto">
             <div>
-              <div className="flex items-center justify-between border-b border-stone-200 dark:border-stone-800 pb-4 mb-6">
-                <div>
-                  <span className="font-extrabold text-lg text-black dark:text-white uppercase block leading-none">
-                    EEvolution 2.0
-                  </span>
-                  <span className="text-[9px] font-mono text-stone-500 font-bold block mt-1 uppercase">
-                    DEPT. OF ELECTRICAL ENGINEERING
-                  </span>
-                </div>
+              <div className="flex items-center justify-between border-b border-stone-200 dark:border-stone-800 pb-3 mb-4">
+                <span className="font-mono text-xs font-bold text-stone-500 uppercase tracking-wider">
+                  Menu Navigation
+                </span>
                 <button
                   onClick={() => setSidebarOpen(false)}
                   className="p-1 text-stone-400 hover:text-black dark:hover:text-white"
@@ -233,41 +229,59 @@ export default function Navbar() {
                 </button>
               </div>
 
-              <div className="text-[11px] font-mono text-stone-500 mb-4 uppercase font-semibold">
-                Navigation Archive
-              </div>
-
-              <nav className="flex flex-col gap-3 text-sm">
+              <nav className="flex flex-col gap-1 text-sm font-medium">
                 {NAV_ITEMS.map((item) => {
                   const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
                   const hasSubItems = item.subItems && item.subItems.length > 0;
+                  const isSubmenuOpen = openMobileSubmenu === item.label;
+
+                  if (hasSubItems) {
+                    return (
+                      <div key={item.href} className="border-b border-stone-100 dark:border-stone-800/60 py-2">
+                        <div className="flex items-center justify-between">
+                          <Link
+                            href={item.href}
+                            onClick={() => setSidebarOpen(false)}
+                            className={`${isActive ? 'font-bold text-black dark:text-white' : 'text-stone-800 dark:text-stone-200'}`}
+                          >
+                            {item.label}
+                          </Link>
+                          <button
+                            onClick={() => setOpenMobileSubmenu(isSubmenuOpen ? null : item.label)}
+                            className="p-1 text-stone-500 hover:text-black dark:hover:text-white"
+                          >
+                            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isSubmenuOpen ? 'rotate-180' : ''}`} />
+                          </button>
+                        </div>
+
+                        {/* Collapsible Submenu (Only expands when clicked) */}
+                        {isSubmenuOpen && (
+                          <div className="pl-3 mt-2 flex flex-col gap-2 text-xs border-l-2 border-stone-300 dark:border-stone-700">
+                            {item.subItems?.map((sub) => (
+                              <Link
+                                key={sub.href}
+                                href={sub.href}
+                                onClick={() => setSidebarOpen(false)}
+                                className="text-stone-600 dark:text-stone-400 hover:text-black dark:hover:text-white py-0.5"
+                              >
+                                {sub.label}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
 
                   return (
-                    <div key={item.href} className="border-b border-stone-100 dark:border-stone-800/60 pb-2">
+                    <div key={item.href} className="border-b border-stone-100 dark:border-stone-800/60 py-2">
                       <Link
                         href={item.href}
                         onClick={() => setSidebarOpen(false)}
-                        className={`block py-0.5 ${
-                          isActive ? 'font-bold text-black dark:text-white' : 'text-stone-700 dark:text-stone-300 hover:text-black dark:hover:text-white'
-                        }`}
+                        className={`block ${isActive ? 'font-bold text-black dark:text-white' : 'text-stone-800 dark:text-stone-200'}`}
                       >
                         {item.label}
                       </Link>
-
-                      {hasSubItems && (
-                        <div className="pl-3 mt-1.5 flex flex-col gap-1.5 text-xs text-stone-500 dark:text-stone-400">
-                          {item.subItems?.map((sub) => (
-                            <Link
-                              key={sub.href}
-                              href={sub.href}
-                              onClick={() => setSidebarOpen(false)}
-                              className="hover:text-black dark:hover:text-white py-0.5"
-                            >
-                              &rarr; {sub.label}
-                            </Link>
-                          ))}
-                        </div>
-                      )}
                     </div>
                   );
                 })}
