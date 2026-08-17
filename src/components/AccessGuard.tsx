@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Lock, Sparkles, ShieldAlert, KeyRound } from 'lucide-react';
+import { LockKeyhole, KeyRound, ShieldAlert, ArrowRight, ShieldCheck } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 
 interface AccessGuardProps {
@@ -74,16 +74,17 @@ export default function AccessGuard({ children, category }: AccessGuardProps) {
   if (requiresMember && (!isLoggedIn || !isMember)) {
     return (
       <div className="py-12 px-4 max-w-2xl mx-auto font-sans text-stone-900 dark:text-stone-100">
-        <div className="border-2 border-stone-800 dark:border-stone-200 bg-[#FCFCF9] dark:bg-[#141414] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl text-center">
-          <div className="w-14 h-14 rounded-full bg-amber-100 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-300 flex items-center justify-center mx-auto shadow-sm">
-            <Sparkles className="w-6 h-6" />
+        <div className="border border-stone-300 dark:border-stone-800 bg-[#FCFCF9] dark:bg-[#141414] rounded-2xl p-6 sm:p-8 space-y-6 shadow-md text-center">
+          {/* Authentic Clean Icon Badge */}
+          <div className="w-12 h-12 rounded-xl bg-stone-900 dark:bg-stone-100 text-white dark:text-black flex items-center justify-center mx-auto shadow-sm">
+            <LockKeyhole className="w-5 h-5" />
           </div>
 
           <div className="space-y-2">
-            <span className="font-mono text-xs font-bold text-amber-900 dark:text-amber-300 uppercase tracking-wider block">
+            <span className="font-mono text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider block">
               [ RESTRICTED MEMBER ARCHIVE ]
             </span>
-            <h2 className="text-2xl font-bold text-black dark:text-white tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-bold text-black dark:text-white tracking-tight">
               Paid Member Pass Required
             </h2>
             <p className="text-stone-600 dark:text-stone-400 text-xs leading-relaxed max-w-md mx-auto">
@@ -95,9 +96,10 @@ export default function AccessGuard({ children, category }: AccessGuardProps) {
             {!isLoggedIn ? (
               <Link
                 href="/login"
-                className="w-full sm:w-auto px-6 py-3 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-bold uppercase rounded-xl hover:opacity-90 transition-opacity"
+                className="w-full sm:w-auto px-6 py-3 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-bold uppercase rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
               >
-                Sign In / Register &rarr;
+                <span>Sign In / Register</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             ) : (
               <Link
@@ -105,7 +107,8 @@ export default function AccessGuard({ children, category }: AccessGuardProps) {
                 className="w-full sm:w-auto px-6 py-3 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-bold uppercase rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
               >
                 <KeyRound className="w-4 h-4" />
-                <span>Redeem Treasurer Key &rarr;</span>
+                <span>Redeem Treasurer Key</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             )}
           </div>
@@ -118,16 +121,17 @@ export default function AccessGuard({ children, category }: AccessGuardProps) {
   if (requiresLogin && !isLoggedIn) {
     return (
       <div className="py-12 px-4 max-w-2xl mx-auto font-sans text-stone-900 dark:text-stone-100">
-        <div className="border border-stone-300 dark:border-stone-800 bg-[#FCFCF9] dark:bg-[#141414] rounded-2xl p-6 sm:p-8 space-y-6 shadow-lg text-center">
-          <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-950/60 border border-blue-300 dark:border-blue-800 text-blue-900 dark:text-blue-300 flex items-center justify-center mx-auto shadow-sm">
-            <Lock className="w-6 h-6" />
+        <div className="border border-stone-300 dark:border-stone-800 bg-[#FCFCF9] dark:bg-[#141414] rounded-2xl p-6 sm:p-8 space-y-6 shadow-md text-center">
+          {/* Authentic Clean Icon Badge */}
+          <div className="w-12 h-12 rounded-xl bg-stone-900 dark:bg-stone-100 text-white dark:text-black flex items-center justify-center mx-auto shadow-sm">
+            <ShieldCheck className="w-5 h-5" />
           </div>
 
           <div className="space-y-2">
-            <span className="font-mono text-xs font-bold text-blue-900 dark:text-blue-400 uppercase tracking-wider block">
+            <span className="font-mono text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider block">
               [ AUTHENTICATION REQUIRED ]
             </span>
-            <h2 className="text-2xl font-bold text-black dark:text-white tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-bold text-black dark:text-white tracking-tight">
               Sign In to View Academic Content
             </h2>
             <p className="text-stone-600 dark:text-stone-400 text-xs leading-relaxed max-w-md mx-auto">
@@ -138,9 +142,10 @@ export default function AccessGuard({ children, category }: AccessGuardProps) {
           <div className="pt-2 flex justify-center font-mono text-xs">
             <Link
               href="/login"
-              className="px-6 py-3 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-bold uppercase rounded-xl hover:opacity-90 transition-opacity"
+              className="px-6 py-3 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-bold uppercase rounded-xl hover:opacity-90 transition-opacity flex items-center gap-2"
             >
-              Sign In to Account &rarr;
+              <span>Sign In to Account</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>
