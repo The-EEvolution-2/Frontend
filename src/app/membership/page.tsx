@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { KeyRound, ShieldCheck, UserCheck, Check, Sparkles, AlertCircle, Copy, CheckCircle2 } from 'lucide-react';
+import { KeyRound, ShieldCheck, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 
 export default function MembershipPage() {
@@ -10,7 +10,6 @@ export default function MembershipPage() {
   const [activating, setActivating] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadSession() {
@@ -109,13 +108,6 @@ export default function MembershipPage() {
     } finally {
       setActivating(false);
     }
-  };
-
-  const copyDemoKey = (key: string) => {
-    navigator.clipboard.writeText(key);
-    setCopiedKey(key);
-    setActivationKey(key);
-    setTimeout(() => setCopiedKey(null), 2000);
   };
 
   return (
@@ -259,31 +251,6 @@ export default function MembershipPage() {
                 </div>
               </li>
             </ol>
-
-            {/* Test Keys Box */}
-            <div className="p-4 rounded-xl bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 space-y-2">
-              <span className="font-mono text-[11px] font-bold text-stone-500 uppercase block">
-                [&nbsp;DEMO TREASURER ISSUED KEYS FOR TESTING&nbsp;]
-              </span>
-              <div className="space-y-1.5 font-mono text-xs">
-                {[
-                  { code: 'EE2026-KEY-9821-4401', dur: '1 Month Pass' },
-                  { code: 'EE2026-KEY-7712-9903', dur: '1 Year Pass' },
-                ].map((item) => (
-                  <button
-                    key={item.code}
-                    onClick={() => copyDemoKey(item.code)}
-                    className="w-full p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 rounded-lg flex items-center justify-between hover:border-stone-500 transition-colors"
-                  >
-                    <span>{item.code} ({item.dur})</span>
-                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-bold flex items-center gap-1">
-                      <Copy className="w-3 h-3" />
-                      {copiedKey === item.code ? 'Copied!' : 'Click to Use'}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
 
           <div className="pt-4 border-t border-stone-200 dark:border-stone-800 flex items-center gap-2 text-xs font-mono text-stone-500">
