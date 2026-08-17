@@ -100,17 +100,22 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b border-stone-200 dark:border-stone-800 bg-[#FCFCF9] dark:bg-[#141414] py-3.5 transition-colors shadow-sm text-stone-900 dark:text-stone-100 font-sans">
+      <header className="sticky top-0 z-40 w-full border-b border-stone-200 dark:border-stone-800 bg-[#FCFCF9] dark:bg-[#141414] py-4 transition-colors shadow-sm text-stone-900 dark:text-stone-100 font-sans">
         <div className="w-full px-4 sm:px-8 lg:px-16 flex items-center justify-between">
-          {/* Left: Brand */}
+          {/* Left: Prominent Brand Identity Logo & Subtitle */}
           <div className="flex-shrink-0">
-            <Link href="/" className="font-bold text-lg text-black dark:text-white flex items-center gap-2 tracking-tight">
-              <span>EEvolution 2.0</span>
+            <Link href="/" className="group block leading-none">
+              <span className="text-2xl sm:text-3xl font-extrabold text-black dark:text-white tracking-tight uppercase group-hover:text-blue-900 dark:group-hover:text-blue-400 transition-colors">
+                EEvolution 2.0
+              </span>
+              <span className="block text-[10px] sm:text-[11px] font-mono text-stone-500 uppercase font-semibold mt-1 tracking-wider">
+                Department of Electrical Engineering
+              </span>
             </Link>
           </div>
 
           {/* Center-Aligned Desktop Navigation Bar */}
-          <div className="hidden md:flex items-center justify-center flex-grow mx-8 text-xs font-medium" ref={navRef}>
+          <div className="hidden lg:flex items-center justify-center flex-grow mx-8 text-xs font-medium" ref={navRef}>
             <nav className="flex items-center gap-6">
               {NAV_ITEMS.map((item) => {
                 const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
@@ -172,14 +177,14 @@ export default function Navbar() {
           </div>
 
           {/* Right: Controls & User Profile Name */}
-          <div className="hidden md:flex items-center gap-4 flex-shrink-0 text-xs font-sans">
+          <div className="hidden lg:flex items-center gap-4 flex-shrink-0 text-xs font-sans">
             <FontSizeControl />
             <span className="text-stone-300 dark:text-stone-800">|</span>
             <ThemeToggle />
             <span className="text-stone-300 dark:text-stone-800">|</span>
             <Link
               href={isAuthenticated ? '/profile' : '/login'}
-              className="flex items-center gap-1.5 px-3 py-1.5 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors font-medium"
+              className="flex items-center gap-1.5 px-3.5 py-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors font-semibold"
             >
               <User className="w-3.5 h-3.5 text-stone-500" />
               <span>{isAuthenticated && userName ? userName : 'Sign In'}</span>
@@ -187,13 +192,13 @@ export default function Navbar() {
           </div>
 
           {/* Mobile Hamburger Button */}
-          <div className="flex items-center gap-3 md:hidden">
+          <div className="flex items-center gap-3 lg:hidden">
             <FontSizeControl />
             <ThemeToggle />
             <button
               onClick={() => setSidebarOpen(true)}
               aria-label="Open Navigation Menu"
-              className="p-1.5 border border-stone-300 dark:border-stone-700 rounded-md text-stone-900 dark:text-stone-100"
+              className="p-2 border border-stone-300 dark:border-stone-700 rounded-md text-stone-900 dark:text-stone-100"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -203,7 +208,7 @@ export default function Navbar() {
 
       {/* Slide-over Side Drawer Overlay for Mobile */}
       {sidebarOpen && (
-        <div className="fixed inset-0 z-50 flex md:hidden">
+        <div className="fixed inset-0 z-50 flex lg:hidden">
           <div
             onClick={() => setSidebarOpen(false)}
             className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity"
@@ -212,9 +217,14 @@ export default function Navbar() {
           <div className="relative ml-auto w-4/5 max-w-xs h-full bg-[#FCFCF9] dark:bg-[#141414] border-l border-stone-200 dark:border-stone-800 p-6 flex flex-col justify-between font-sans z-50 shadow-2xl overflow-y-auto">
             <div>
               <div className="flex items-center justify-between border-b border-stone-200 dark:border-stone-800 pb-4 mb-6">
-                <span className="font-bold text-base text-black dark:text-white">
-                  EEvolution 2.0
-                </span>
+                <div>
+                  <span className="font-extrabold text-lg text-black dark:text-white uppercase block leading-none">
+                    EEvolution 2.0
+                  </span>
+                  <span className="text-[10px] font-mono text-stone-500 font-bold block mt-1 uppercase">
+                    Department of Electrical Engineering
+                  </span>
+                </div>
                 <button
                   onClick={() => setSidebarOpen(false)}
                   className="p-1 text-stone-400 hover:text-black dark:hover:text-white"
@@ -272,7 +282,7 @@ export default function Navbar() {
               <Link
                 href={isAuthenticated ? '/profile' : '/login'}
                 onClick={() => setSidebarOpen(false)}
-                className="flex items-center justify-center gap-2 p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 rounded-lg text-stone-900 dark:text-stone-100 font-medium"
+                className="flex items-center justify-center gap-2 p-2.5 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 rounded-lg text-stone-900 dark:text-stone-100 font-semibold"
               >
                 <User className="w-3.5 h-3.5 text-stone-500" />
                 <span>{isAuthenticated && userName ? userName : 'Sign In'}</span>
