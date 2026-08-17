@@ -28,11 +28,11 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b border-stone-300 dark:border-stone-800 bg-[#F4F4F0] dark:bg-[#181818] py-3.5 transition-colors shadow-sm">
+      <header className="sticky top-0 z-40 w-full border-b border-stone-800 dark:border-stone-700 bg-[#1C1D1F] dark:bg-[#0D0E10] text-stone-100 py-3.5 transition-colors shadow-md">
         <div className="w-full px-4 sm:px-8 lg:px-16 flex items-center justify-between font-serif">
           {/* Left: Brand */}
           <div className="flex-shrink-0">
-            <Link href="/" className="font-bold text-xl text-black dark:text-white flex items-center gap-2">
+            <Link href="/" className="font-bold text-xl text-white flex items-center gap-2 tracking-wide">
               <span>EEvolution 2.0</span>
             </Link>
           </div>
@@ -50,8 +50,8 @@ export default function Navbar() {
                     <div key={item.href} className="relative">
                       <button
                         onClick={() => setOpenDropdown(isDropdownOpen ? null : item.label)}
-                        className={`flex items-center gap-1 font-serif ${
-                          isActive ? 'font-bold underline text-black dark:text-white' : 'text-stone-700 dark:text-stone-400 hover:underline'
+                        className={`flex items-center gap-1 font-serif transition-colors ${
+                          isActive ? 'font-bold underline text-white' : 'text-stone-300 hover:text-white hover:underline'
                         }`}
                       >
                         <span>{item.label}</span>
@@ -60,11 +60,11 @@ export default function Navbar() {
 
                       {/* Dropdown Menu */}
                       {isDropdownOpen && (
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-52 bg-[#F4F4F0] dark:bg-[#181818] border border-stone-300 dark:border-stone-800 shadow-lg py-2 z-50 font-serif text-xs rounded-md">
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-52 bg-[#1C1D1F] dark:bg-[#0D0E10] border border-stone-700 text-stone-100 shadow-2xl py-2 z-50 font-serif text-xs rounded-md">
                           <Link
                             href={item.href}
                             onClick={() => setOpenDropdown(null)}
-                            className="block px-4 py-2 text-stone-900 dark:text-stone-100 hover:bg-stone-200 dark:hover:bg-stone-800 font-bold border-b border-stone-200 dark:border-stone-800"
+                            className="block px-4 py-2 text-white hover:bg-stone-800 font-bold border-b border-stone-700"
                           >
                             All {item.label} Index
                           </Link>
@@ -73,7 +73,7 @@ export default function Navbar() {
                               key={sub.href}
                               href={sub.href}
                               onClick={() => setOpenDropdown(null)}
-                              className="block px-4 py-2 text-stone-800 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-800"
+                              className="block px-4 py-2 text-stone-300 hover:bg-stone-800 hover:text-white"
                             >
                               {sub.label}
                             </Link>
@@ -88,8 +88,8 @@ export default function Navbar() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`${
-                      isActive ? 'font-bold underline text-black dark:text-white' : 'text-stone-700 dark:text-stone-400 hover:underline'
+                    className={`transition-colors ${
+                      isActive ? 'font-bold underline text-white' : 'text-stone-300 hover:text-white hover:underline'
                     }`}
                   >
                     {item.label}
@@ -100,14 +100,14 @@ export default function Navbar() {
           </div>
 
           {/* Right: Controls & Profile */}
-          <div className="hidden md:flex items-center gap-4 flex-shrink-0">
+          <div className="hidden md:flex items-center gap-4 flex-shrink-0 text-stone-100">
             <FontSizeControl />
-            <span className="text-stone-300 dark:text-stone-700">|</span>
+            <span className="text-stone-600">|</span>
             <ThemeToggle />
-            <span className="text-stone-300 dark:text-stone-700">|</span>
+            <span className="text-stone-600">|</span>
             <Link
               href={isAuthenticated ? '/profile' : '/login'}
-              className="text-stone-800 dark:text-stone-300 hover:underline font-mono text-xs flex items-center gap-1"
+              className="text-stone-200 hover:text-white hover:underline font-mono text-xs flex items-center gap-1 bg-stone-800 hover:bg-stone-700 px-3 py-1.5 rounded border border-stone-700 transition-colors"
             >
               <User className="w-3.5 h-3.5" />
               <span>{isAuthenticated ? 'Profile' : 'Sign In'}</span>
@@ -121,7 +121,7 @@ export default function Navbar() {
             <button
               onClick={() => setSidebarOpen(true)}
               aria-label="Open Navigation Menu"
-              className="p-1.5 border border-stone-400 dark:border-stone-700 rounded-md text-black dark:text-white"
+              className="p-1.5 border border-stone-600 rounded-md text-white hover:bg-stone-800"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -134,24 +134,24 @@ export default function Navbar() {
         <div className="fixed inset-0 z-50 flex md:hidden">
           <div
             onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 bg-black/50 transition-opacity"
+            className="fixed inset-0 bg-black/60 transition-opacity"
           />
 
-          <div className="relative ml-auto w-4/5 max-w-xs h-full bg-[#F4F4F0] dark:bg-[#181818] border-l border-stone-300 dark:border-stone-800 p-6 flex flex-col justify-between font-serif z-50 shadow-2xl overflow-y-auto">
+          <div className="relative ml-auto w-4/5 max-w-xs h-full bg-[#1C1D1F] text-stone-100 border-l border-stone-700 p-6 flex flex-col justify-between font-serif z-50 shadow-2xl overflow-y-auto">
             <div>
-              <div className="flex items-center justify-between border-b border-stone-300 dark:border-stone-800 pb-4 mb-6">
-                <span className="font-bold text-lg text-black dark:text-white">
+              <div className="flex items-center justify-between border-b border-stone-700 pb-4 mb-6">
+                <span className="font-bold text-lg text-white">
                   EEvolution 2.0
                 </span>
                 <button
                   onClick={() => setSidebarOpen(false)}
-                  className="p-1 text-stone-600 dark:text-stone-400 hover:text-black dark:hover:text-white"
+                  className="p-1 text-stone-400 hover:text-white"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="text-xs font-mono text-stone-500 mb-4 uppercase">
+              <div className="text-xs font-mono text-stone-400 mb-4 uppercase">
                 Navigation Archive
               </div>
 
@@ -161,12 +161,12 @@ export default function Navbar() {
                   const hasSubItems = item.subItems && item.subItems.length > 0;
 
                   return (
-                    <div key={item.href} className="border-b border-stone-200 dark:border-stone-800 pb-2">
+                    <div key={item.href} className="border-b border-stone-800 pb-2">
                       <Link
                         href={item.href}
                         onClick={() => setSidebarOpen(false)}
                         className={`block py-0.5 ${
-                          isActive ? 'font-bold underline text-black dark:text-white' : 'text-stone-800 dark:text-stone-300 hover:underline'
+                          isActive ? 'font-bold underline text-white' : 'text-stone-300 hover:text-white hover:underline'
                         }`}
                       >
                         {item.label}
@@ -179,7 +179,7 @@ export default function Navbar() {
                               key={sub.href}
                               href={sub.href}
                               onClick={() => setSidebarOpen(false)}
-                              className="text-stone-600 dark:text-stone-400 hover:underline py-0.5"
+                              className="text-stone-400 hover:text-white hover:underline py-0.5"
                             >
                               &rarr; {sub.label}
                             </Link>
@@ -192,7 +192,7 @@ export default function Navbar() {
               </nav>
             </div>
 
-            <div className="border-t border-stone-300 dark:border-stone-800 pt-4 space-y-3 font-mono text-xs">
+            <div className="border-t border-stone-700 pt-4 space-y-3 font-mono text-xs">
               <div className="flex items-center justify-between">
                 <span>Font Size:</span>
                 <FontSizeControl />
@@ -200,7 +200,7 @@ export default function Navbar() {
               <Link
                 href={isAuthenticated ? '/profile' : '/login'}
                 onClick={() => setSidebarOpen(false)}
-                className="text-stone-800 dark:text-stone-300 hover:underline flex items-center gap-1"
+                className="text-stone-200 hover:underline flex items-center gap-1"
               >
                 <User className="w-3.5 h-3.5" />
                 <span>{isAuthenticated ? 'User Profile' : 'Sign In'}</span>
