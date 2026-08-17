@@ -1,102 +1,93 @@
-'use client';
-
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { RESOURCE_CATEGORIES } from '../constants/nestedResourcesData';
+import { Cpu, ArrowRight, Activity, Zap, ShieldCheck } from 'lucide-react';
 
 export default function Hero() {
   return (
-    <div className="w-full relative min-h-[1400px] sm:min-h-[1500px] lg:min-h-[1600px] py-6 font-sans">
-      {/* Telemetry SVG Lines Background Canvas */}
-      <svg className="absolute top-0 left-0 w-full h-[1800px] pointer-events-none z-0 opacity-25" preserveAspectRatio="none" viewBox="0 0 1440 1800" xmlns="http://www.w3.org/2000/svg">
-        <path className="telemetry-line" d="M -100,200 C 300,100 500,600 800,400 C 1100,200 1300,800 1600,600" fill="none" stroke="currentColor" strokeWidth="1" />
-        <path className="telemetry-line" d="M -100,600 C 200,800 400,300 700,500 C 1000,700 1200,400 1500,900" fill="none" stroke="currentColor" strokeWidth="0.5" />
-        <path className="telemetry-line" d="M 200,100 C 100,500 600,700 800,1100 C 1000,1500 1200,1300 1500,1800" fill="none" stroke="currentColor" strokeDasharray="4,4" strokeWidth="0.5" />
-      </svg>
+    <section className="font-sans border border-stone-300 dark:border-stone-800 bg-[#FCFCF9] dark:bg-[#141414] rounded-2xl p-6 sm:p-8 lg:p-10 shadow-md mb-8 relative overflow-hidden">
+      {/* Background Decorative Grid Line */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-stone-200/30 to-transparent dark:from-stone-800/20 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Hero Area (Floating Elements) */}
-      <div className="relative lg:absolute top-4 lg:top-12 left-0 lg:left-[5%] w-full lg:w-[50%] z-20 animate-float-slow">
-        <div className="bg-white/90 dark:bg-stone-900/90 backdrop-blur-md p-6 sm:p-10 rounded-2xl shadow-xl border border-stone-200 dark:border-stone-800 space-y-6">
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-light text-black dark:text-white leading-[1.15] tracking-tight">
-            Electrical Engineering,<br />Embedded Systems &amp;<br />Circuit Telemetry<br />Archive
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+        {/* Left Column: Main Hero Content (7 Grid Span) */}
+        <div className="lg:col-span-7 space-y-6">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-mono text-[11px] font-bold uppercase tracking-wider shadow-sm">
+            <Activity className="w-3.5 h-3.5 text-emerald-400 dark:text-emerald-600 animate-pulse" />
+            <span>DEPT. OF ELECTRICAL ENGINEERING • PORTAL 2.0</span>
+          </div>
+
+          {/* Headline */}
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-black dark:text-white tracking-tight leading-[1.15]">
+            Electrical Engineering, Embedded Systems &amp; Circuit Telemetry
           </h1>
 
-          <p className="text-stone-600 dark:text-stone-400 text-sm sm:text-base font-light leading-relaxed max-w-md">
-            EEvolution 2.0 serves as a technical reference portal containing peer-contributed documentation, hardware schematic analysis, and micro-controller firmware guidelines.
+          {/* Subtitle / Paragraph */}
+          <p className="text-stone-700 dark:text-stone-300 text-xs sm:text-sm leading-relaxed max-w-2xl font-sans">
+            EEvolution 2.0 serves as the primary academic reference portal containing peer-contributed documentation, high-frequency hardware schematics, firmware guidelines, and verified practice problem sets.
           </p>
 
-          <div className="flex flex-col gap-4 pt-2 font-mono text-xs sm:text-sm">
-            <Link href="/resources" className="inline-flex items-center gap-3 text-black dark:text-white font-medium group">
-              <span className="w-8 h-[1px] bg-black dark:bg-white group-hover:w-12 transition-all duration-300" />
-              <span>Index of Technical Resources</span>
+          {/* Metric Badges Strip */}
+          <div className="grid grid-cols-3 gap-3 pt-2 max-w-lg font-mono text-xs border-y border-stone-200 dark:border-stone-800 py-3">
+            <div>
+              <span className="block font-bold text-base text-black dark:text-white">100%</span>
+              <span className="text-[10px] text-stone-500 uppercase">Verified Spec</span>
+            </div>
+            <div>
+              <span className="block font-bold text-base text-black dark:text-white">300+</span>
+              <span className="text-[10px] text-stone-500 uppercase">EE Repositories</span>
+            </div>
+            <div>
+              <span className="block font-bold text-base text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                <Zap className="w-3 h-3" /> ACTIVE
+              </span>
+              <span className="text-[10px] text-stone-500 uppercase">Telemetry Grid</span>
+            </div>
+          </div>
+
+          {/* CTA Buttons */}
+          <div className="flex flex-wrap items-center gap-3 pt-1 font-mono text-xs">
+            <Link
+              href="/resources"
+              className="px-5 py-3 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-bold uppercase rounded-xl hover:opacity-90 transition-all flex items-center gap-2 shadow-md"
+            >
+              <span>Explore Technical Resources</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
 
-            <Link href="/projects" className="inline-flex items-center gap-3 text-black dark:text-white font-medium group">
-              <span className="w-8 h-[1px] bg-black dark:bg-white group-hover:w-12 transition-all duration-300" />
-              <span>System Project Repositories</span>
+            <Link
+              href="/projects"
+              className="px-5 py-3 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white font-bold uppercase rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+            >
+              <span>Hardware Repositories</span>
             </Link>
           </div>
         </div>
-      </div>
 
-      {/* Image Frame 1 (Monochrome Telemetry Setup) */}
-      <div className="relative lg:absolute top-8 lg:top-8 right-0 lg:right-[3%] w-full lg:w-[42%] z-10 animate-float-medium mt-6 lg:mt-0">
-        <div className="relative rounded-3xl overflow-hidden shadow-2xl lg:rotate-3 border border-stone-200 dark:border-stone-800">
-          <div className="absolute inset-0 bg-black/10 mix-blend-overlay z-10" />
-          <div className="relative h-64 sm:h-80 lg:h-96 w-full">
+        {/* Right Column: Hero Visual Showcase (5 Grid Span) */}
+        <div className="lg:col-span-5 relative">
+          <div className="relative h-64 sm:h-80 w-full rounded-2xl overflow-hidden border border-stone-300 dark:border-stone-800 shadow-xl bg-stone-100 dark:bg-stone-900">
             <Image
               src="/lab_banner.jpg"
-              alt="Monochrome EE Telemetry Workbench"
+              alt="Electrical Engineering Telemetry Workbench"
               fill
-              className="object-cover filter grayscale contrast-125"
+              className="object-cover hover:scale-105 transition-transform duration-700"
               priority
             />
+            {/* Visual Overlay Card */}
+            <div className="absolute bottom-3 left-3 right-3 bg-stone-900/90 backdrop-blur-sm border border-stone-700 text-white font-mono text-[11px] p-3 rounded-xl flex items-center justify-between shadow-lg">
+              <div className="flex items-center gap-2">
+                <Cpu className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                <span className="font-bold uppercase tracking-wide">FIG 1.0: EE TELEMETRY WORKBENCH</span>
+              </div>
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 font-bold border border-emerald-800">
+                LIVE SPEC
+              </span>
+            </div>
           </div>
-          <div className="absolute bottom-4 left-4 right-4 bg-white/90 dark:bg-stone-900/90 backdrop-blur-sm p-3 sm:p-4 rounded-xl z-20 border border-stone-200 dark:border-stone-800">
-            <p className="font-mono text-[10px] sm:text-xs uppercase tracking-widest text-black dark:text-white m-0 font-medium">
-              FIG 1.0: EE TELEMETRY TEST WORKBENCH SETUP
-            </p>
-          </div>
         </div>
       </div>
-
-      {/* Floating Info Card */}
-      <div className="relative lg:absolute top-[480px] lg:top-[520px] left-0 lg:left-[52%] w-full lg:w-[32%] z-30 animate-float-fast mt-6 lg:mt-0">
-        <div className="bg-stone-900 dark:bg-stone-100 text-white dark:text-black p-6 sm:p-8 rounded-2xl shadow-2xl lg:-rotate-2 space-y-3 border border-stone-800 dark:border-stone-200">
-          <span className="material-symbols-outlined text-4xl font-light block">memory</span>
-          <h3 className="font-serif text-xl sm:text-2xl font-light">Micro-controller Guidelines</h3>
-          <p className="text-xs sm:text-sm font-light text-stone-300 dark:text-stone-700 leading-relaxed">
-            Updated documentation on firmware optimization and telemetry integration for robust embedded systems.
-          </p>
-        </div>
-      </div>
-
-      {/* Knowledge Clusters (Organic Cluster Map) */}
-      <div className="relative lg:absolute top-[750px] lg:top-[780px] left-0 w-full z-20 mt-12 lg:mt-0">
-        <h2 className="text-center font-serif text-2xl sm:text-3xl text-black dark:text-white font-light mb-10 tracking-wide uppercase">
-          Knowledge Clusters
-        </h2>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:flex lg:flex-wrap items-center justify-center gap-6 max-w-5xl mx-auto px-4">
-          {RESOURCE_CATEGORIES.map((cat, idx) => {
-            const floatAnimations = ['animate-float-medium', 'animate-float-slow', 'animate-float-fast'];
-            const animClass = floatAnimations[idx % 3];
-
-            return (
-              <Link
-                key={cat.slug}
-                href={`/resources/${cat.slug}`}
-                className={`w-36 h-36 sm:w-44 sm:h-44 bg-white dark:bg-stone-900 rounded-full shadow-lg flex items-center justify-center text-center p-4 border border-stone-200 dark:border-stone-800 hover:scale-110 hover:shadow-2xl transition-all duration-300 ${animClass} group`}
-              >
-                <span className="font-mono text-xs sm:text-sm text-black dark:text-white font-light group-hover:font-semibold transition-all">
-                  {cat.name}
-                </span>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-    </div>
+    </section>
   );
 }
