@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 import ReduxProvider from '../components/ReduxProvider';
 import LayoutWrapper from '../components/LayoutWrapper';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 export const metadata: Metadata = {
   title: 'EEvolution 2.0 - Academic & Technical Archive',
@@ -15,9 +17,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased bg-[#FCFCF9] text-[#111111] dark:bg-[#121212] dark:text-[#E0E0E0] min-h-screen" suppressHydrationWarning>
+      <body className="antialiased bg-[#FCFCF9] text-[#111111] dark:bg-[#121212] dark:text-[#E0E0E0] min-h-screen flex flex-col justify-between" suppressHydrationWarning>
         <ReduxProvider>
-          <LayoutWrapper>{children}</LayoutWrapper>
+          <LayoutWrapper>
+            <Navbar />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+          </LayoutWrapper>
         </ReduxProvider>
       </body>
     </html>
