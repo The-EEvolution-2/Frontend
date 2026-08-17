@@ -121,11 +121,6 @@ export default function MembershipPage() {
 
       {/* Page Title & Instructions */}
       <div className="text-center max-w-2xl mx-auto space-y-3">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-300 font-mono text-xs font-bold uppercase">
-          <KeyRound className="w-3.5 h-3.5" />
-          <span>DEPARTMENT TREASURER ACTIVATION KEY SYSTEM</span>
-        </div>
-
         <h1 className="text-3xl sm:text-4xl font-extrabold text-black dark:text-white tracking-tight">
           Activate Your Academic Membership
         </h1>
