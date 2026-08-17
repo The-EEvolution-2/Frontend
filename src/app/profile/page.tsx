@@ -23,6 +23,7 @@ export default function ProfilePage() {
             name: parsed.full_name,
             email: 'guest@eevolution.edu',
             role: 'Guest Access',
+            department: 'Department of Electrical Engineering',
             bio: `Guest researcher exploring Department of Electrical Engineering technical archives.`,
           });
           setLoading(false);
@@ -48,22 +49,28 @@ export default function ProfilePage() {
           return;
         }
 
-        const isStudent = dbProfile.role === 'student';
-        const roleLabel = isStudent
-          ? `Student (Batch ${dbProfile.batch_year || '2026'} - Group ${dbProfile.batch_group || '1'})`
+        const roleLabel = dbProfile.role === 'student'
+          ? 'STUDENT'
           : dbProfile.role === 'faculty'
-          ? 'Faculty / Teacher'
-          : dbProfile.role.toUpperCase();
+          ? 'FACULTY / TEACHER'
+          : (dbProfile.role || 'MEMBER').toUpperCase();
 
-        const detailsBio = isStudent
-          ? `Roll No: ${dbProfile.roll_number || 'N/A'} | Department: ${dbProfile.department || 'Electrical Engineering'}`
-          : `Mobile: ${dbProfile.mobile_no || 'N/A'} | Department: ${dbProfile.department || 'Electrical Engineering'}`;
+        const detailsBio = dbProfile.role === 'student'
+          ? `Enrolled student in the Department of Electrical Engineering. Access privileges include peer research papers, circuit telemetry, and lab specifications.`
+          : dbProfile.role === 'faculty'
+          ? `Faculty member in the Department of Electrical Engineering. Privileges include research repository contribution and academic curriculum evaluation.`
+          : `Registered ${dbProfile.role} of EEvolution 2.0 Academic Portal.`;
 
         setProfileData({
           id: user.id,
           name: dbProfile.full_name || user.email?.split('@')[0] || 'Member',
           email: user.email || '',
           role: roleLabel,
+          department: dbProfile.department || 'Department of Electrical Engineering',
+          mobile_no: dbProfile.mobile_no,
+          batch_year: dbProfile.batch_year,
+          roll_number: dbProfile.roll_number,
+          batch_group: dbProfile.batch_group,
           bio: detailsBio,
         });
       } catch (err) {
@@ -92,7 +99,7 @@ export default function ProfilePage() {
         <span>domain / profile</span>
       </div>
 
-      <div className="max-w-2xl mx-auto border border-stone-300 dark:border-stone-800 rounded">
+      <div className="max-w-2xl mx-auto">
         <ProfileCard user={profileData} />
       </div>
     </div>
