@@ -149,7 +149,6 @@ export default function LoginForm() {
     }
 
     setLoading(true);
-    // Guest session simulated in local storage / Supabase anonymous profile
     localStorage.setItem('ee_guest_user', JSON.stringify({
       full_name: guestName,
       role: 'guest',
@@ -161,7 +160,7 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="max-w-md w-full mx-auto border border-stone-300 dark:border-stone-800 bg-[#FCFCF9] dark:bg-[#141414] p-6 sm:p-8 font-serif shadow-xl rounded-lg space-y-6">
+    <div className="max-w-md w-full mx-auto border border-stone-300 dark:border-stone-800 bg-[#FCFCF9] dark:bg-[#141414] p-6 sm:p-8 font-sans shadow-xl rounded-lg space-y-6">
       {/* Header */}
       <div className="text-center border-b border-stone-300 dark:border-stone-800 pb-4">
         <h2 className="text-xl font-bold text-black dark:text-white uppercase tracking-wide">
@@ -173,7 +172,7 @@ export default function LoginForm() {
             ? 'CREATE EEVOLUTION ACCOUNT'
             : 'MEMBER SIGN IN'}
         </h2>
-        <p className="text-xs font-mono text-stone-500 mt-1">
+        <p className="text-xs text-stone-500 mt-1">
           {mode === 'onboarding'
             ? 'Specify academic credentials to complete accession'
             : 'EEvolution 2.0 Academic Portal Authentication'}
@@ -181,7 +180,7 @@ export default function LoginForm() {
       </div>
 
       {error && (
-        <div className="p-3 border border-red-300 dark:border-red-900 bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 font-mono text-xs rounded flex items-center gap-2">
+        <div className="p-3 border border-red-300 dark:border-red-900 bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 text-xs rounded flex items-center gap-2">
           <ShieldAlert className="w-4 h-4 flex-shrink-0" />
           <span>{error}</span>
         </div>
@@ -189,7 +188,7 @@ export default function LoginForm() {
 
       {/* 1. SIGN IN & SIGN UP FORM */}
       {(mode === 'signin' || mode === 'signup') && (
-        <div className="space-y-4 font-mono text-xs">
+        <div className="space-y-4 text-xs">
           {/* Google OAuth Login Button */}
           <button
             onClick={handleGoogleLogin}
@@ -207,7 +206,7 @@ export default function LoginForm() {
 
           <div className="flex items-center my-3">
             <div className="flex-1 border-t border-stone-300 dark:border-stone-800"></div>
-            <span className="px-2 text-[10px] text-stone-400 uppercase">OR EMAIL LOGIN</span>
+            <span className="px-2 text-[10px] text-stone-400 uppercase tracking-wider">OR EMAIL LOGIN</span>
             <div className="flex-1 border-t border-stone-300 dark:border-stone-800"></div>
           </div>
 
@@ -222,7 +221,7 @@ export default function LoginForm() {
                   placeholder="student@university.edu"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-9 p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded"
+                  className="w-full pl-9 p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded focus:outline-none focus:ring-1 focus:ring-stone-500"
                 />
               </div>
             </div>
@@ -237,7 +236,7 @@ export default function LoginForm() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-9 p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded"
+                  className="w-full pl-9 p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded focus:outline-none focus:ring-1 focus:ring-stone-500"
                 />
               </div>
             </div>
@@ -282,7 +281,7 @@ export default function LoginForm() {
 
       {/* 2. FIRST TIME ONBOARDING PROFILE FORM */}
       {mode === 'onboarding' && (
-        <form onSubmit={handleOnboardingSubmit} className="space-y-4 font-mono text-xs">
+        <form onSubmit={handleOnboardingSubmit} className="space-y-4 text-xs">
           {/* Role Selector */}
           <div>
             <label className="block text-stone-600 dark:text-stone-400 mb-1">Select Academic Role:</label>
@@ -290,10 +289,10 @@ export default function LoginForm() {
               <button
                 type="button"
                 onClick={() => setRole('student')}
-                className={`p-2 border rounded font-bold uppercase ${
+                className={`p-2.5 border rounded font-bold uppercase tracking-wider transition-colors ${
                   role === 'student'
-                    ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-black'
-                    : 'border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-400'
+                    ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-black border-stone-900 dark:border-stone-100'
+                    : 'border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'
                 }`}
               >
                 Student
@@ -301,10 +300,10 @@ export default function LoginForm() {
               <button
                 type="button"
                 onClick={() => setRole('faculty')}
-                className={`p-2 border rounded font-bold uppercase ${
+                className={`p-2.5 border rounded font-bold uppercase tracking-wider transition-colors ${
                   role === 'faculty'
-                    ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-black'
-                    : 'border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-400'
+                    ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-black border-stone-900 dark:border-stone-100'
+                    : 'border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'
                 }`}
               >
                 Faculty / Teacher
@@ -322,7 +321,7 @@ export default function LoginForm() {
               placeholder="e.g. Prof. Alan Turing or Alex Smith"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="w-full p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded"
+              className="w-full p-2.5 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded focus:outline-none focus:ring-1 focus:ring-stone-500"
             />
           </div>
 
@@ -333,7 +332,7 @@ export default function LoginForm() {
               type="text"
               readOnly
               value={department}
-              className="w-full p-2 border border-stone-300 dark:border-stone-800 bg-stone-100 dark:bg-stone-950 text-stone-600 dark:text-stone-400 rounded cursor-not-allowed font-bold"
+              className="w-full p-2.5 border border-stone-300 dark:border-stone-800 bg-stone-100 dark:bg-stone-900/60 text-stone-700 dark:text-stone-300 rounded cursor-not-allowed font-medium"
             />
           </div>
 
@@ -347,7 +346,7 @@ export default function LoginForm() {
                 placeholder="+91 9876543210"
                 value={mobileNo}
                 onChange={(e) => setMobileNo(e.target.value)}
-                className="w-full p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded"
+                className="w-full p-2.5 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded focus:outline-none focus:ring-1 focus:ring-stone-500"
               />
             </div>
           )}
@@ -361,7 +360,7 @@ export default function LoginForm() {
                   <select
                     value={batchYear}
                     onChange={(e) => setBatchYear(e.target.value)}
-                    className="w-full p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded"
+                    className="w-full p-2.5 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded focus:outline-none focus:ring-1 focus:ring-stone-500"
                   >
                     <option value="2024">Batch 2024</option>
                     <option value="2025">Batch 2025</option>
@@ -376,7 +375,7 @@ export default function LoginForm() {
                   <select
                     value={batchGroup}
                     onChange={(e) => setBatchGroup(e.target.value)}
-                    className="w-full p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded"
+                    className="w-full p-2.5 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded focus:outline-none focus:ring-1 focus:ring-stone-500"
                   >
                     <option value="1">Batch 1</option>
                     <option value="2">Batch 2</option>
@@ -396,9 +395,9 @@ export default function LoginForm() {
                   pattern="^[0-9]{2}\/[eE][eE]\/[0-9]{2,3}$"
                   value={rollNumber}
                   onChange={(e) => setRollNumber(e.target.value)}
-                  className="w-full p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded font-mono"
+                  className="w-full p-2.5 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded focus:outline-none focus:ring-1 focus:ring-stone-500"
                 />
-                <p className="text-[10px] text-stone-400 mt-0.5">Example format: 24/EE/01</p>
+                <p className="text-[10px] text-stone-400 mt-1">Example format: 24/EE/01</p>
               </div>
             </>
           )}
@@ -406,7 +405,7 @@ export default function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-bold uppercase rounded hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+            className="w-full py-3 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-bold uppercase tracking-wider rounded hover:opacity-90 transition-opacity flex items-center justify-center gap-2 mt-2"
           >
             <UserCheck className="w-4 h-4" />
             <span>{loading ? 'Saving Profile...' : 'Complete Profile & Enter'}</span>
@@ -416,7 +415,7 @@ export default function LoginForm() {
 
       {/* 3. GUEST ACCESS FORM */}
       {mode === 'guest' && (
-        <form onSubmit={handleGuestSignIn} className="space-y-4 font-mono text-xs">
+        <form onSubmit={handleGuestSignIn} className="space-y-4 text-xs">
           <div>
             <label className="block text-stone-600 dark:text-stone-400 mb-1">Your Full Name:</label>
             <input
@@ -425,7 +424,7 @@ export default function LoginForm() {
               placeholder="e.g. Guest Researcher"
               value={guestName}
               onChange={(e) => setGuestName(e.target.value)}
-              className="w-full p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded"
+              className="w-full p-2.5 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded focus:outline-none focus:ring-1 focus:ring-stone-500"
             />
           </div>
 
@@ -435,13 +434,13 @@ export default function LoginForm() {
               type="text"
               readOnly
               value="Guest Read-Only Access"
-              className="w-full p-2 border border-stone-300 dark:border-stone-800 bg-stone-100 dark:bg-stone-950 text-stone-600 dark:text-stone-400 rounded cursor-not-allowed font-bold"
+              className="w-full p-2.5 border border-stone-300 dark:border-stone-800 bg-stone-100 dark:bg-stone-900/60 text-stone-700 dark:text-stone-300 rounded cursor-not-allowed font-medium"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full py-2.5 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-bold uppercase rounded hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+            className="w-full py-3 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-bold uppercase tracking-wider rounded hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
           >
             <ArrowRight className="w-4 h-4" />
             <span>Enter as Guest</span>
