@@ -25,15 +25,11 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   { label: 'Research', href: '/research' },
-  { label: 'Projects', href: '/projects' }, // Dropdown removed as requested
+  { label: 'Projects', href: '/projects' },
   {
     label: 'Software',
     href: '/software',
     subItems: [
-      { label: 'Analysis & CAD', href: '/software?category=cad' },
-      { label: 'Firmware & Debug', href: '/software?category=firmware' },
-      { label: 'Magnetics & Power', href: '/software?category=power' },
-      { label: 'Digital Logic & HDL', href: '/software?category=hdl' },
       { label: 'Downloads', href: '/software?category=downloads' },
       { label: 'Tutorial', href: '/software?category=tutorial' },
     ],
