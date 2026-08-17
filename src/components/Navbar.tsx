@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { NAV_ITEMS } from '../constants/nav';
-import { RESOURCE_CATEGORIES } from '../constants/nestedResourcesData';
 import ThemeToggle from './ThemeToggle';
 import FontSizeControl from './FontSizeControl';
 import { useAppSelector } from '../hooks/useRedux';
@@ -29,7 +28,7 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b border-stone-300 dark:border-stone-800 bg-[#FCFCF9] dark:bg-[#121212] py-3.5 transition-colors">
+      <header className="sticky top-0 z-40 w-full border-b border-stone-300 dark:border-stone-800 bg-[#F4F4F0] dark:bg-[#181818] py-3.5 transition-colors shadow-sm">
         <div className="w-full px-4 sm:px-8 lg:px-16 flex items-center justify-between font-serif">
           {/* Left: Brand */}
           <div className="flex-shrink-0">
@@ -61,7 +60,7 @@ export default function Navbar() {
 
                       {/* Dropdown Menu */}
                       {isDropdownOpen && (
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-52 bg-[#FCFCF9] dark:bg-[#121212] border border-stone-300 dark:border-stone-800 shadow-lg py-2 z-50 font-serif text-xs rounded-md">
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-52 bg-[#F4F4F0] dark:bg-[#181818] border border-stone-300 dark:border-stone-800 shadow-lg py-2 z-50 font-serif text-xs rounded-md">
                           <Link
                             href={item.href}
                             onClick={() => setOpenDropdown(null)}
@@ -138,7 +137,7 @@ export default function Navbar() {
             className="fixed inset-0 bg-black/50 transition-opacity"
           />
 
-          <div className="relative ml-auto w-4/5 max-w-xs h-full bg-[#FCFCF9] dark:bg-[#121212] border-l border-stone-300 dark:border-stone-800 p-6 flex flex-col justify-between font-serif z-50 shadow-2xl overflow-y-auto">
+          <div className="relative ml-auto w-4/5 max-w-xs h-full bg-[#F4F4F0] dark:bg-[#181818] border-l border-stone-300 dark:border-stone-800 p-6 flex flex-col justify-between font-serif z-50 shadow-2xl overflow-y-auto">
             <div>
               <div className="flex items-center justify-between border-b border-stone-300 dark:border-stone-800 pb-4 mb-6">
                 <span className="font-bold text-lg text-black dark:text-white">
