@@ -22,13 +22,11 @@ export default function SetPasswordModal() {
         const currentUser = session.user;
         setUser(currentUser);
 
-        // Check if user logged in via Google OAuth
         const isGoogleUser = currentUser.app_metadata?.provider === 'google' ||
           currentUser.app_metadata?.providers?.includes('google');
 
-        if (!isGoogleUser) return; // Email/password users already have a password
+        if (!isGoogleUser) return;
 
-        // Check profiles table for has_password status
         const { data: profile } = await supabase
           .from('profiles')
           .select('has_password')
@@ -36,10 +34,9 @@ export default function SetPasswordModal() {
           .single();
 
         if (profile && profile.has_password === true) {
-          return; // Password already created -> do not show modal
+          return;
         }
 
-        // Show popup modal on home screen for Google users without a password
         setShowModal(true);
       } catch (err) {
         console.log('Password check error:', err);
@@ -65,14 +62,12 @@ export default function SetPasswordModal() {
 
     setLoading(true);
     try {
-      // 1. Update user password in Supabase Auth
       const { error: updateAuthErr } = await supabase.auth.updateUser({
         password,
       });
 
       if (updateAuthErr) throw updateAuthErr;
 
-      // 2. Mark has_password = true in public.profiles table
       const { error: profileErr } = await supabase
         .from('profiles')
         .update({ has_password: true })
@@ -83,7 +78,7 @@ export default function SetPasswordModal() {
       setSuccess(true);
       setTimeout(() => {
         setShowModal(false);
-      }, 1800);
+      }, 1500);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to set account password.');
     } finally {
@@ -98,100 +93,100 @@ export default function SetPasswordModal() {
   if (!showModal) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 font-mono text-xs">
-      <div className="bg-[#FCFCF9] dark:bg-[#141414] border-2 border-stone-800 dark:border-stone-200 p-6 sm:p-8 max-w-md w-full rounded-lg shadow-2xl space-y-5 relative">
-        {/* Close / Ignore Button */}
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 font-sans text-xs">
+      <div className="bg-white dark:bg-[#181818] border border-stone-200 dark:border-stone-800 p-6 sm:p-7 max-w-sm w-full rounded-xl shadow-xl space-y-4 relative text-stone-900 dark:text-stone-100">
+        {/* Close Button */}
         <button
           onClick={handleIgnore}
-          title="Ignore for now"
-          className="absolute top-4 right-4 p-1 text-stone-400 hover:text-black dark:hover:text-white"
+          title="Close modal"
+          className="absolute top-4 right-4 text-stone-400 hover:text-black dark:hover:text-white transition-colors"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
 
-        <div className="border-b border-stone-300 dark:border-stone-800 pb-3">
-          <div className="flex items-center gap-2 text-blue-900 dark:text-blue-400 font-bold uppercase mb-1">
-            <Lock className="w-4 h-4" />
-            <span>[ ACCOUNT SECURITY ENHANCEMENT ]</span>
+        <div className="space-y-1">
+          <div className="flex items-center gap-1.5 text-stone-500 dark:text-stone-400 text-[11px] font-medium uppercase tracking-wider">
+            <Lock className="w-3.5 h-3.5" />
+            <span>Account Security</span>
           </div>
           <h3 className="text-base font-bold text-black dark:text-white">
-            Set Password for Dual Sign-In
+            Set Account Password
           </h3>
-          <p className="text-stone-600 dark:text-stone-400 leading-relaxed mt-1 text-[11px]">
-            You signed in via Google. Add a password to enable logging in via both Google OAuth and Email/Password!
+          <p className="text-stone-600 dark:text-stone-400 text-xs leading-relaxed">
+            Create a password to enable email &amp; password sign-in alongside Google login.
           </p>
         </div>
 
         {error && (
-          <div className="p-3 border border-red-300 dark:border-red-900 bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 rounded flex items-center gap-2">
+          <div className="p-3 border border-stone-300 dark:border-stone-700 bg-stone-100 dark:bg-stone-900 text-black dark:text-white text-xs rounded-md flex items-center gap-2">
             <ShieldAlert className="w-4 h-4 flex-shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         {success ? (
-          <div className="p-4 border border-emerald-300 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 rounded text-center space-y-1">
-            <CheckCircle className="w-6 h-6 mx-auto text-emerald-600 dark:text-emerald-400" />
-            <h4 className="font-bold text-sm">PASSWORD CREATED SUCCESSFULLY!</h4>
-            <p className="text-[11px]">You can now log in using either Google or your email and password.</p>
+          <div className="p-4 bg-stone-100 dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded-md text-center space-y-1">
+            <CheckCircle className="w-5 h-5 mx-auto text-black dark:text-white" />
+            <h4 className="font-bold text-xs">Password Set Successfully</h4>
+            <p className="text-[11px] text-stone-500">You can now log in using both methods.</p>
           </div>
         ) : (
-          <form onSubmit={handleCreatePassword} className="space-y-4">
+          <form onSubmit={handleCreatePassword} className="space-y-3">
             <div>
-              <label className="block text-stone-600 dark:text-stone-400 mb-1">
-                Account Email (Read-Only):
+              <label className="block text-stone-600 dark:text-stone-400 text-[11px] mb-1 font-medium">
+                Account Email
               </label>
               <input
                 type="email"
                 disabled
                 value={user?.email || ''}
-                className="w-full p-2.5 border border-stone-300 dark:border-stone-800 bg-stone-100 dark:bg-stone-900 text-stone-500 font-bold"
+                className="w-full p-2 border border-stone-200 dark:border-stone-800 bg-stone-100 dark:bg-stone-900/60 text-stone-500 rounded-md"
               />
             </div>
 
             <div>
-              <label className="block text-stone-600 dark:text-stone-400 mb-1">
-                New Password (Min 6 chars):
+              <label className="block text-stone-600 dark:text-stone-400 text-[11px] mb-1 font-medium">
+                New Password
               </label>
               <input
                 type="password"
                 required
-                placeholder="••••••••"
+                placeholder="At least 6 characters"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-2.5 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded"
+                className="w-full p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-md focus:outline-none focus:ring-1 focus:ring-stone-500"
               />
             </div>
 
             <div>
-              <label className="block text-stone-600 dark:text-stone-400 mb-1">
-                Confirm Password:
+              <label className="block text-stone-600 dark:text-stone-400 text-[11px] mb-1 font-medium">
+                Confirm Password
               </label>
               <input
                 type="password"
                 required
-                placeholder="••••••••"
+                placeholder="Re-enter password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full p-2.5 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded"
+                className="w-full p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-md focus:outline-none focus:ring-1 focus:ring-stone-500"
               />
             </div>
 
-            <div className="flex items-center justify-between gap-3 pt-2">
+            <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 type="button"
                 onClick={handleIgnore}
-                className="flex-1 py-2.5 border border-stone-400 text-stone-700 dark:text-stone-300 font-bold uppercase rounded hover:bg-stone-200 dark:hover:bg-stone-800 text-center"
+                className="px-3 py-2 border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 text-xs font-medium rounded-md hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
               >
-                [ REMIND NEXT TIME ]
+                Skip for now
               </button>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 py-2.5 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-bold uppercase rounded hover:opacity-90 transition-opacity text-center"
+                className="px-4 py-2 bg-stone-900 dark:bg-stone-100 text-white dark:text-black text-xs font-medium rounded-md hover:opacity-90 transition-opacity"
               >
-                {loading ? 'Securing...' : '[ SET PASSWORD NOW ]'}
+                {loading ? 'Saving...' : 'Set Password'}
               </button>
             </div>
           </form>
