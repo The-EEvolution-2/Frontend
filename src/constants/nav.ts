@@ -25,15 +25,7 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   { label: 'Research', href: '/research' },
-  {
-    label: 'Projects',
-    href: '/projects',
-    subItems: [
-      { label: 'Hardware & Circuits', href: '/projects?filter=hardware' },
-      { label: 'Embedded Systems', href: '/projects?filter=embedded' },
-      { label: 'IoT & Telemetry', href: '/projects?filter=iot' },
-    ],
-  },
+  { label: 'Projects', href: '/projects' }, // Dropdown removed as requested
   {
     label: 'Software',
     href: '/software',
