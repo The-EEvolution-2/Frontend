@@ -13,6 +13,18 @@ export default function SetPasswordModal() {
   const [success, setSuccess] = useState(false);
   const [user, setUser] = useState<any>(null);
 
+  // Prevent background body scrolling when modal is open
+  useEffect(() => {
+    if (showModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showModal]);
+
   useEffect(() => {
     async function checkPasswordStatus() {
       try {
@@ -93,8 +105,8 @@ export default function SetPasswordModal() {
   if (!showModal) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 font-sans text-xs">
-      <div className="bg-white dark:bg-[#181818] border border-stone-200 dark:border-stone-800 p-6 sm:p-7 max-w-sm w-full rounded-xl shadow-xl space-y-4 relative text-stone-900 dark:text-stone-100">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 font-sans text-xs">
+      <div className="bg-[#FCFCF9] dark:bg-[#161616] border border-stone-300 dark:border-stone-800 p-6 sm:p-7 max-w-sm w-full rounded-lg shadow-2xl space-y-4 relative text-stone-900 dark:text-stone-100">
         {/* Close Button */}
         <button
           onClick={handleIgnore}
@@ -104,10 +116,10 @@ export default function SetPasswordModal() {
           <X className="w-4 h-4" />
         </button>
 
-        <div className="space-y-1">
-          <div className="flex items-center gap-1.5 text-stone-500 dark:text-stone-400 text-[11px] font-medium uppercase tracking-wider">
+        <div className="space-y-1 pr-4">
+          <div className="flex items-center gap-1.5 text-stone-500 dark:text-stone-400 text-[11px] font-mono uppercase tracking-wider">
             <Lock className="w-3.5 h-3.5" />
-            <span>Account Security</span>
+            <span>ACCOUNT SECURITY</span>
           </div>
           <h3 className="text-base font-bold text-black dark:text-white">
             Set Account Password
@@ -118,14 +130,14 @@ export default function SetPasswordModal() {
         </div>
 
         {error && (
-          <div className="p-3 border border-stone-300 dark:border-stone-700 bg-stone-100 dark:bg-stone-900 text-black dark:text-white text-xs rounded-md flex items-center gap-2">
+          <div className="p-3 border border-red-300 dark:border-red-900 bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 text-xs rounded flex items-center gap-2">
             <ShieldAlert className="w-4 h-4 flex-shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         {success ? (
-          <div className="p-4 bg-stone-100 dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded-md text-center space-y-1">
+          <div className="p-4 bg-stone-100 dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded text-center space-y-1">
             <CheckCircle className="w-5 h-5 mx-auto text-black dark:text-white" />
             <h4 className="font-bold text-xs">Password Set Successfully</h4>
             <p className="text-[11px] text-stone-500">You can now log in using both methods.</p>
@@ -133,19 +145,19 @@ export default function SetPasswordModal() {
         ) : (
           <form onSubmit={handleCreatePassword} className="space-y-3">
             <div>
-              <label className="block text-stone-600 dark:text-stone-400 text-[11px] mb-1 font-medium">
+              <label className="block text-stone-600 dark:text-stone-400 text-[11px] mb-1 font-mono uppercase">
                 Account Email
               </label>
               <input
                 type="email"
                 disabled
                 value={user?.email || ''}
-                className="w-full p-2 border border-stone-200 dark:border-stone-800 bg-stone-100 dark:bg-stone-900/60 text-stone-500 rounded-md"
+                className="w-full p-2 border border-stone-300 dark:border-stone-800 bg-stone-100 dark:bg-stone-900/60 text-stone-500 rounded font-mono text-xs"
               />
             </div>
 
             <div>
-              <label className="block text-stone-600 dark:text-stone-400 text-[11px] mb-1 font-medium">
+              <label className="block text-stone-600 dark:text-stone-400 text-[11px] mb-1 font-mono uppercase">
                 New Password
               </label>
               <input
@@ -154,12 +166,12 @@ export default function SetPasswordModal() {
                 placeholder="At least 6 characters"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-md focus:outline-none focus:ring-1 focus:ring-stone-500"
+                className="w-full p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded focus:outline-none focus:ring-1 focus:ring-stone-500"
               />
             </div>
 
             <div>
-              <label className="block text-stone-600 dark:text-stone-400 text-[11px] mb-1 font-medium">
+              <label className="block text-stone-600 dark:text-stone-400 text-[11px] mb-1 font-mono uppercase">
                 Confirm Password
               </label>
               <input
@@ -168,7 +180,7 @@ export default function SetPasswordModal() {
                 placeholder="Re-enter password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-md focus:outline-none focus:ring-1 focus:ring-stone-500"
+                className="w-full p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded focus:outline-none focus:ring-1 focus:ring-stone-500"
               />
             </div>
 
@@ -176,7 +188,7 @@ export default function SetPasswordModal() {
               <button
                 type="button"
                 onClick={handleIgnore}
-                className="px-3 py-2 border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 text-xs font-medium rounded-md hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+                className="px-3 py-2 border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 text-xs font-mono font-bold uppercase rounded hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
               >
                 Skip for now
               </button>
@@ -184,7 +196,7 @@ export default function SetPasswordModal() {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-4 py-2 bg-stone-900 dark:bg-stone-100 text-white dark:text-black text-xs font-medium rounded-md hover:opacity-90 transition-opacity"
+                className="px-4 py-2 bg-stone-900 dark:bg-stone-100 text-white dark:text-black text-xs font-mono font-bold uppercase rounded hover:opacity-90 transition-opacity"
               >
                 {loading ? 'Saving...' : 'Set Password'}
               </button>
