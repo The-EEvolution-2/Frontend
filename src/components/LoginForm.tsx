@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Mail, Lock, LogIn, UserCheck, ShieldAlert, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
+import { Mail, Lock, LogIn, UserCheck, ShieldAlert, ArrowRight, CheckSquare, Square } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 
@@ -11,6 +12,10 @@ export default function LoginForm() {
   // Auth Mode: 'signin' | 'signup' | 'onboarding' | 'guest'
   const [mode, setMode] = useState<'signin' | 'signup' | 'onboarding' | 'guest'>('signin');
   const [role, setRole] = useState<'student' | 'faculty'>('student');
+
+  // Terms & Privacy Checkbox Agreements
+  const [agreedTerms, setAgreedTerms] = useState(false);
+  const [agreedPrivacy, setAgreedPrivacy] = useState(false);
 
   // Login credentials
   const [email, setEmail] = useState('');
@@ -68,8 +73,18 @@ export default function LoginForm() {
     }
   };
 
+  const validateAgreements = (): boolean => {
+    if (!agreedTerms || !agreedPrivacy) {
+      setError('You must read and agree to both the Terms & Conditions and Privacy Policy before proceeding.');
+      return false;
+    }
+    return true;
+  };
+
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateAgreements()) return;
+
     setLoading(true);
     setError(null);
 
@@ -101,6 +116,8 @@ export default function LoginForm() {
   };
 
   const handleGoogleLogin = async () => {
+    if (!validateAgreements()) return;
+
     setLoading(true);
     setError(null);
     try {
@@ -158,6 +175,8 @@ export default function LoginForm() {
 
   const handleGuestSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateAgreements()) return;
+
     if (!guestName.trim()) {
       setError('Please enter your name to proceed as guest');
       return;
@@ -201,6 +220,51 @@ export default function LoginForm() {
         </div>
       )}
 
+      {/* Mandatory Terms & Privacy Policy Agreement Checkboxes */}
+      {mode !== 'onboarding' && (
+        <div className="p-3.5 border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900/60 rounded-lg space-y-2 text-xs font-sans">
+          <span className="font-mono text-[10px] font-bold text-stone-500 uppercase block tracking-wider">
+            [ MANDATORY POLICIES AGREEMENT ]
+          </span>
+
+          <label className="flex items-start gap-2.5 cursor-pointer text-stone-800 dark:text-stone-200 select-none">
+            <input
+              type="checkbox"
+              checked={agreedTerms}
+              onChange={(e) => {
+                setAgreedTerms(e.target.checked);
+                if (error) setError(null);
+              }}
+              className="mt-0.5 w-4 h-4 rounded border-stone-300 text-stone-900 focus:ring-stone-500 cursor-pointer"
+            />
+            <span>
+              I have read and agree to the{' '}
+              <Link href="/terms" target="_blank" className="font-bold underline text-blue-600 dark:text-blue-400 hover:opacity-80">
+                Terms &amp; Conditions
+              </Link>
+            </span>
+          </label>
+
+          <label className="flex items-start gap-2.5 cursor-pointer text-stone-800 dark:text-stone-200 select-none">
+            <input
+              type="checkbox"
+              checked={agreedPrivacy}
+              onChange={(e) => {
+                setAgreedPrivacy(e.target.checked);
+                if (error) setError(null);
+              }}
+              className="mt-0.5 w-4 h-4 rounded border-stone-300 text-stone-900 focus:ring-stone-500 cursor-pointer"
+            />
+            <span>
+              I have read and agree to the{' '}
+              <Link href="/privacy" target="_blank" className="font-bold underline text-blue-600 dark:text-blue-400 hover:opacity-80">
+                Privacy Policy
+              </Link>
+            </span>
+          </label>
+        </div>
+      )}
+
       {/* 1. SIGN IN & SIGN UP FORM */}
       {(mode === 'signin' || mode === 'signup') && (
         <div className="space-y-4 text-xs">
@@ -208,7 +272,9 @@ export default function LoginForm() {
           <button
             onClick={handleGoogleLogin}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 p-2.5 border border-stone-400 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors font-bold"
+            className={`w-full flex items-center justify-center gap-3 p-2.5 border border-stone-400 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded transition-colors font-bold ${
+              !agreedTerms || !agreedPrivacy ? 'opacity-50 cursor-not-allowed' : 'hover:bg-stone-100 dark:hover:bg-stone-800'
+            }`}
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
@@ -258,8 +324,8 @@ export default function LoginForm() {
 
             <button
               type="submit"
-              disabled={loading}
-              className="w-full py-2.5 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-bold uppercase rounded hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+              disabled={loading || !agreedTerms || !agreedPrivacy}
+              className="w-full py-2.5 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-bold uppercase rounded hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <LogIn className="w-4 h-4" />
               <span>{loading ? 'Processing...' : mode === 'signup' ? 'Create Account' : 'Sign In'}</span>
@@ -455,7 +521,8 @@ export default function LoginForm() {
 
           <button
             type="submit"
-            className="w-full py-3 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-bold uppercase tracking-wider rounded hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+            disabled={!agreedTerms || !agreedPrivacy}
+            className="w-full py-3 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-bold uppercase tracking-wider rounded hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <ArrowRight className="w-4 h-4" />
             <span>Enter as Guest</span>

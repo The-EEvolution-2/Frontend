@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export default function Footer() {
   return (
-    <footer className="w-full border-t border-stone-300 dark:border-stone-800 bg-[#F7F7F4] dark:bg-[#161616] text-stone-800 dark:text-stone-300 transition-colors font-serif mt-16">
+    <footer className="w-full border-t border-stone-300 dark:border-stone-800 bg-[#F7F7F4] dark:bg-[#161616] text-stone-800 dark:text-stone-300 transition-colors font-sans mt-16">
       <div className="w-full px-4 sm:px-8 lg:px-16 py-12">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-8 pb-8 border-b border-stone-300 dark:border-stone-800">
           {/* Col 1: Brand & Overview */}
@@ -96,19 +96,16 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom Credits & Legal */}
+        {/* Bottom Credits & Legal Links */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-stone-500">
           <p>© 2026 EEvolution 2.0 Academic &amp; Technical Archive. All rights reserved.</p>
           <div className="flex gap-6">
-            <a href="#" className="hover:underline hover:text-stone-800 dark:hover:text-stone-200">
+            <Link href="/privacy" className="hover:underline hover:text-stone-800 dark:hover:text-stone-200">
               Privacy Policy
-            </a>
-            <a href="#" className="hover:underline hover:text-stone-800 dark:hover:text-stone-200">
-              Terms of Service
-            </a>
-            <a href="#" className="hover:underline hover:text-stone-800 dark:hover:text-stone-200">
-              API Documentation
-            </a>
+            </Link>
+            <Link href="/terms" className="hover:underline hover:text-stone-800 dark:hover:text-stone-200">
+              Terms &amp; Conditions
+            </Link>
           </div>
         </div>
       </div>
