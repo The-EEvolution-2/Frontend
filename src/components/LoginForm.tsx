@@ -29,29 +29,65 @@ export default function LoginForm() {
   // Guest Onboarding
   const [guestName, setGuestName] = useState('');
 
-  // Check if session exists on load
+  // Check session on load and handle first-time Google sign in redirect
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        checkUserProfile(session.user.id);
+        checkUserProfile(session.user);
       }
     });
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        checkUserProfile(session.user);
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, []);
 
-  const checkUserProfile = async (userId: string) => {
+  const checkUserProfile = async (user: any) => {
     try {
       const { data, error: profileErr } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', userId)
+        .eq('id', user.id)
         .single();
 
-      if (profileErr || !data || !data.full_name) {
+      // If no profile exists, create base profile row and open onboarding
+      if (profileErr || !data) {
+        const { error: insertErr } = await supabase
+          .from('profiles')
+          .insert([
+            {
+              id: user.id,
+              email: user.email,
+              full_name: user.user_metadata?.full_name || user.user_metadata?.name || '',
+              role: 'normal',
+              department,
+            },
+          ]);
+
+        if (insertErr && insertErr.code !== '23505') {
+          console.log('Error creating base profile row:', insertErr);
+        }
+
+        setFullName(user.user_metadata?.full_name || user.user_metadata?.name || '');
+        setEmail(user.email || '');
+        setMode('onboarding');
+      } else if (!data.full_name || !data.role || data.role === 'normal') {
+        // First-time user profile incomplete
+        setFullName(data.full_name || user.user_metadata?.full_name || '');
+        setEmail(user.email || '');
         setMode('onboarding');
       } else {
+        // Complete profile already exists -> redirect to website profile
         router.push('/profile');
       }
-    } catch {
+    } catch (err) {
+      console.log('Profile check error:', err);
       setMode('onboarding');
     }
   };
@@ -69,7 +105,7 @@ export default function LoginForm() {
         });
         if (authErr) throw authErr;
         if (data.user) {
-          setMode('onboarding');
+          checkUserProfile(data.user);
         }
       } else {
         const { data, error: authErr } = await supabase.auth.signInWithPassword({
@@ -78,7 +114,7 @@ export default function LoginForm() {
         });
         if (authErr) throw authErr;
         if (data.user) {
-          checkUserProfile(data.user.id);
+          checkUserProfile(data.user);
         }
       }
     } catch (err: unknown) {
@@ -95,7 +131,7 @@ export default function LoginForm() {
       const { error: authErr } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/profile`,
+          redirectTo: `${window.location.origin}/login`,
         },
       });
       if (authErr) throw authErr;
@@ -112,13 +148,13 @@ export default function LoginForm() {
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('No active user session');
+      if (!session) throw new Error('No active user session found');
 
       const profilePayload = {
         id: session.user.id,
-        role,
-        full_name: fullName,
         email: session.user.email,
+        full_name: fullName,
+        role,
         mobile_no: role === 'faculty' ? mobileNo : null,
         batch_year: role === 'student' ? batchYear : null,
         department,
@@ -127,6 +163,7 @@ export default function LoginForm() {
         is_guest: false,
       };
 
+      // Save complete profile to public.profiles table (User Table)
       const { error: profileErr } = await supabase
         .from('profiles')
         .upsert(profilePayload);
