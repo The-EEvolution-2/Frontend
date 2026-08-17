@@ -192,9 +192,8 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Mobile Hamburger Button */}
-          <div className="flex items-center gap-2.5 md:hidden">
-            <FontSizeControl />
+          {/* Mobile Header Controls: Clean Theme Toggle & Hamburger Button */}
+          <div className="flex items-center gap-2 md:hidden">
             <ThemeToggle />
             <button
               onClick={() => setSidebarOpen(true)}
@@ -289,10 +288,6 @@ export default function Navbar() {
             </div>
 
             <div className="border-t border-stone-200 dark:border-stone-800 pt-4 space-y-3 font-sans text-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-stone-500">Font Size:</span>
-                <FontSizeControl />
-              </div>
               <Link
                 href={isAuthenticated ? '/profile' : '/login'}
                 onClick={() => setSidebarOpen(false)}
