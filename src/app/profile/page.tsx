@@ -24,6 +24,9 @@ export default function ProfilePage() {
             email: 'guest@eevolution.edu',
             role: 'Guest Access',
             department: 'Department of Electrical Engineering',
+            is_member: false,
+            membership_duration: 'None',
+            is_admin: false,
             bio: `Guest researcher exploring Department of Electrical Engineering technical archives.`,
           });
           setLoading(false);
@@ -71,6 +74,9 @@ export default function ProfilePage() {
           batch_year: dbProfile.batch_year,
           roll_number: dbProfile.roll_number,
           batch_group: dbProfile.batch_group,
+          is_member: dbProfile.is_member || false,
+          membership_duration: dbProfile.membership_duration || 'None',
+          is_admin: dbProfile.is_admin || false, // Hidden attribute stored in state
           bio: detailsBio,
         });
       } catch (err) {

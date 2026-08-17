@@ -18,6 +18,9 @@ interface ProfileCardProps {
     batch_group?: string;
     department?: string;
     is_guest?: boolean;
+    is_member?: boolean;
+    membership_duration?: string;
+    is_admin?: boolean; // Hidden attribute
   };
 }
 
@@ -59,6 +62,13 @@ export default function ProfileCard({ user }: ProfileCardProps) {
         <div className="p-3 flex justify-between">
           <span className="font-bold text-stone-500">ACADEMIC ROLE:</span>
           <span className="font-bold text-black dark:text-white uppercase">{user.role}</span>
+        </div>
+
+        <div className="p-3 flex justify-between">
+          <span className="font-bold text-stone-500">MEMBERSHIP STATUS:</span>
+          <span className={`font-bold uppercase ${user.is_member ? 'text-emerald-700 dark:text-emerald-400' : 'text-stone-500'}`}>
+            {user.is_member ? `ACTIVE MEMBER (${user.membership_duration || '1 YEAR'})` : 'INACTIVE / STANDARD ACCESS'}
+          </span>
         </div>
 
         <div className="p-3 flex justify-between">
