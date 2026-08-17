@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import { ThumbsUp, ThumbsDown, Image as ImageIcon, Send, MessageSquare, Megaphone, Loader2, UserCheck, Sparkles, TrendingUp, HelpCircle, Flame } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Image as ImageIcon, Send, MessageSquare, Megaphone, Loader2, UserCheck, Sparkles, TrendingUp, HelpCircle, Flame, Plus, X } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { ANNOUNCEMENTS } from '@/constants/announcements';
 
@@ -45,6 +45,9 @@ export default function CommunityClientContent() {
   const [loading, setLoading] = useState(true);
   const [posting, setPosting] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
+
+  // Modal State for Floating Create Post Modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Load User & Feed Posts
   useEffect(() => {
@@ -141,6 +144,7 @@ export default function CommunityClientContent() {
         setTitle('');
         setContent('');
         setImageUrl('');
+        setIsModalOpen(false); // Close Modal on success
       }
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : 'Failed to publish post');
@@ -197,7 +201,7 @@ export default function CommunityClientContent() {
         <span className="text-black dark:text-white font-bold">community</span>
       </div>
 
-      {/* Full-Width Header Bar */}
+      {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b-2 border-stone-800 dark:border-stone-200 pb-3 gap-4">
         <div>
           <h1 className="text-2xl font-bold text-black dark:text-white tracking-tight uppercase">
@@ -208,38 +212,50 @@ export default function CommunityClientContent() {
           </p>
         </div>
 
-        {/* 2 Tab Options */}
-        <div className="flex items-center gap-2 font-mono text-xs">
-          <button
-            onClick={() => setActiveTab('discussions')}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg font-bold transition-colors ${
-              activeTab === 'discussions'
-                ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-black'
-                : 'border border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'
-            }`}
-          >
-            <MessageSquare className="w-4 h-4" />
-            <span>Community Feed</span>
-          </button>
+        {/* Action Buttons: Add Post Modal Trigger & Tabs */}
+        <div className="flex flex-wrap items-center gap-3 font-mono text-xs">
+          {activeTab === 'discussions' && (
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-extrabold uppercase hover:opacity-90 transition-opacity shadow-md"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Create Post</span>
+            </button>
+          )}
 
-          <button
-            onClick={() => setActiveTab('announcements')}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg font-bold transition-colors ${
-              activeTab === 'announcements'
-                ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-black'
-                : 'border border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'
-            }`}
-          >
-            <Megaphone className="w-4 h-4" />
-            <span>Announcements</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setActiveTab('discussions')}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg font-bold transition-colors ${
+                activeTab === 'discussions'
+                  ? 'bg-stone-800 text-white dark:bg-stone-200 dark:text-black'
+                  : 'border border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'
+              }`}
+            >
+              <MessageSquare className="w-4 h-4" />
+              <span>Community Feed</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('announcements')}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg font-bold transition-colors ${
+                activeTab === 'announcements'
+                  ? 'bg-stone-800 text-white dark:bg-stone-200 dark:text-black'
+                  : 'border border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'
+              }`}
+            >
+              <Megaphone className="w-4 h-4" />
+              <span>Announcements</span>
+            </button>
+          </div>
         </div>
       </div>
 
       {/* TAB 1: FULL COMMUNITY FEED WITH LEFT & RIGHT SIDEBARS */}
       {activeTab === 'discussions' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Sidebar: Portal Quick Rules & Topics (3 Columns) */}
+          {/* Left Sidebar: Guidelines & Trending Topics (3 Columns) */}
           <aside className="lg:col-span-3 space-y-4 font-sans text-xs">
             {/* Quick Guidelines Card */}
             <div className="border border-stone-300 dark:border-stone-800 bg-[#FCFCF9] dark:bg-[#141414] rounded-xl p-5 space-y-3 shadow-sm">
@@ -279,61 +295,22 @@ export default function CommunityClientContent() {
             </div>
           </aside>
 
-          {/* Main Feed Column (6 Columns) */}
+          {/* Main Posts Feed Column (6 Columns - ONLY POSTS SHOWN HERE) */}
           <main className="lg:col-span-6 space-y-6">
-            {/* Create Post Box */}
-            <form
-              onSubmit={handleCreatePost}
-              className="border border-stone-300 dark:border-stone-800 bg-[#FCFCF9] dark:bg-[#141414] rounded-xl p-5 sm:p-6 shadow-md space-y-4 font-sans text-xs"
-            >
-              <div className="flex items-center justify-between border-b border-stone-200 dark:border-stone-800 pb-3">
-                <span className="font-mono text-xs font-bold text-black dark:text-white uppercase flex items-center gap-2">
-                  <UserCheck className="w-4 h-4 text-stone-500" />
-                  <span>Create Post as {currentUser?.name || 'Member'}</span>
-                </span>
+            {/* Create Post Action Strip */}
+            <div className="p-4 border border-stone-300 dark:border-stone-800 bg-[#FCFCF9] dark:bg-[#141414] rounded-xl flex items-center justify-between shadow-sm">
+              <div className="flex items-center gap-2 font-mono text-xs text-stone-600 dark:text-stone-400">
+                <UserCheck className="w-4 h-4 text-stone-500" />
+                <span>Logged in as <strong>{currentUser?.name || 'Member'}</strong></span>
               </div>
-
-              <div className="space-y-3">
-                <input
-                  type="text"
-                  placeholder="Post Headline / Topic Title (Optional)"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full p-2.5 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-lg focus:outline-none focus:ring-1 focus:ring-stone-500 font-semibold"
-                />
-
-                <textarea
-                  required
-                  rows={4}
-                  placeholder="Write your complete technical post, circuit analysis, or engineering query..."
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  className="w-full p-3 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-lg focus:outline-none focus:ring-1 focus:ring-stone-500 leading-relaxed font-sans"
-                />
-
-                <div className="relative">
-                  <ImageIcon className="w-4 h-4 absolute left-3 top-3 text-stone-400" />
-                  <input
-                    type="url"
-                    placeholder="Attach Image URL (e.g. https://.../schematic.png)"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    className="w-full pl-9 p-2.5 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-lg text-xs font-mono"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end pt-1">
-                <button
-                  type="submit"
-                  disabled={posting || !content.trim()}
-                  className="px-5 py-2.5 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-mono text-xs font-bold uppercase rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2 disabled:opacity-50"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>{posting ? 'Publishing...' : 'Publish Post'}</span>
-                </button>
-              </div>
-            </form>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="px-4 py-2 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-mono text-xs font-bold uppercase rounded-lg hover:opacity-90 transition-opacity flex items-center gap-1.5 shadow-sm"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Create New Post</span>
+              </button>
+            </div>
 
             {/* Posts Stream List */}
             {loading ? (
@@ -342,10 +319,17 @@ export default function CommunityClientContent() {
                 <span>Loading community posts...</span>
               </div>
             ) : posts.length === 0 ? (
-              <div className="p-12 border-2 border-dashed border-stone-300 dark:border-stone-800 rounded-xl text-center text-stone-500 font-mono text-xs space-y-2">
+              <div className="p-12 border-2 border-dashed border-stone-300 dark:border-stone-800 rounded-xl text-center text-stone-500 font-mono text-xs space-y-3">
                 <MessageSquare className="w-8 h-8 mx-auto text-stone-400" />
                 <p className="font-bold text-black dark:text-white uppercase">No Community Posts Yet</p>
-                <p className="text-[11px]">Use the box above to publish the first technical post!</p>
+                <p className="text-[11px]">Click the button below to publish the first technical post!</p>
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="px-5 py-2.5 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-mono text-xs font-bold uppercase rounded-lg inline-flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Create First Post</span>
+                </button>
               </div>
             ) : (
               <div className="space-y-6">
@@ -502,6 +486,94 @@ export default function CommunityClientContent() {
                 </p>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* FLOATING POPUP MODAL FOR CREATING NEW POST */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#FCFCF9] dark:bg-[#141414] border-2 border-stone-800 dark:border-stone-200 rounded-2xl p-6 sm:p-8 max-w-xl w-full shadow-2xl space-y-4 relative animate-in fade-in zoom-in-95 duration-200">
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-4 right-4 text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 p-1.5 rounded-full border border-stone-300 dark:border-stone-700 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="border-b border-stone-200 dark:border-stone-800 pb-3">
+              <span className="font-mono text-xs font-bold text-blue-900 dark:text-blue-400 uppercase tracking-wider block">
+                [ PUBLISH COMMUNITY POST ]
+              </span>
+              <h3 className="text-xl font-bold text-black dark:text-white mt-1">
+                Create Technical Post as {currentUser?.name || 'Member'}
+              </h3>
+            </div>
+
+            <form onSubmit={handleCreatePost} className="space-y-4 font-sans text-xs">
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-stone-600 dark:text-stone-400 font-medium mb-1">
+                    Post Headline / Topic Title (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Analysis of PWM Duty Cycle in GaN Inverters"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full p-3 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-xl focus:outline-none focus:ring-1 focus:ring-stone-500 font-semibold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-stone-600 dark:text-stone-400 font-medium mb-1">
+                    Technical Post Content
+                  </label>
+                  <textarea
+                    required
+                    rows={5}
+                    placeholder="Write your complete technical post, circuit analysis, or engineering query..."
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    className="w-full p-3 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-xl focus:outline-none focus:ring-1 focus:ring-stone-500 leading-relaxed font-sans"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-stone-600 dark:text-stone-400 font-medium mb-1">
+                    Attach Image URL (Optional)
+                  </label>
+                  <div className="relative">
+                    <ImageIcon className="w-4 h-4 absolute left-3 top-3 text-stone-400" />
+                    <input
+                      type="url"
+                      placeholder="e.g. https://.../schematic.png"
+                      value={imageUrl}
+                      onChange={(e) => setImageUrl(e.target.value)}
+                      className="w-full pl-9 p-3 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-xl text-xs font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-5 py-2.5 border border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-400 font-mono text-xs font-bold uppercase rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={posting || !content.trim()}
+                  className="px-6 py-2.5 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-mono text-xs font-bold uppercase rounded-xl hover:opacity-90 transition-opacity flex items-center gap-2 disabled:opacity-50 shadow-md"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>{posting ? 'Publishing...' : 'Publish Post'}</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
