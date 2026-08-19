@@ -14,6 +14,10 @@ import {
   Edit3,
   LogOut,
   BadgeCheck,
+  KeyRound,
+  Lock,
+  AlertCircle,
+  CheckCircle2,
 } from 'lucide-react';
 
 interface ProfileCardProps {
@@ -43,6 +47,13 @@ export default function ProfileCard({ user, onProfileUpdate }: ProfileCardProps)
   // Edit Modal State
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  // Change Password Modal State
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordUpdating, setPasswordUpdating] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Editable Profile Attributes
   const [mobileNo, setMobileNo] = useState(user.mobile_no || '');
@@ -85,6 +96,62 @@ export default function ProfileCard({ user, onProfileUpdate }: ProfileCardProps)
     }
   };
 
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordMessage(null);
+
+    if (newPassword.length < 6) {
+      setPasswordMessage({
+        type: 'error',
+        text: 'Password must be at least 6 characters long.',
+      });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage({
+        type: 'error',
+        text: 'Passwords do not match.',
+      });
+      return;
+    }
+
+    setPasswordUpdating(true);
+    try {
+      // 1. Update password in Supabase Auth
+      const { error: authErr } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (authErr) throw authErr;
+
+      // 2. Mark profile as having password set
+      await supabase
+        .from('profiles')
+        .update({ has_password: true })
+        .eq('id', user.id);
+
+      setPasswordMessage({
+        type: 'success',
+        text: 'Password updated successfully!',
+      });
+
+      setNewPassword('');
+      setConfirmPassword('');
+      setTimeout(() => {
+        setIsChangingPassword(false);
+        setPasswordMessage(null);
+      }, 1800);
+    } catch (err: unknown) {
+      setPasswordMessage({
+        type: 'error',
+        text: err instanceof Error ? err.message : 'Failed to update password.',
+      });
+    } finally {
+      setPasswordUpdating(false);
+    }
+  };
+
   const isStudent = user.role?.toLowerCase().includes('student');
   const isFaculty = user.role?.toLowerCase().includes('faculty') || user.role?.toLowerCase().includes('teacher');
 
@@ -123,7 +190,7 @@ export default function ProfileCard({ user, onProfileUpdate }: ProfileCardProps)
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-3 self-end md:self-center">
+        <div className="flex flex-wrap items-center gap-3 self-end md:self-center">
           <button
             onClick={() => setIsEditing(true)}
             className="flex items-center gap-1.5 px-3.5 py-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-semibold transition-colors"
@@ -131,6 +198,16 @@ export default function ProfileCard({ user, onProfileUpdate }: ProfileCardProps)
             <Edit3 className="w-4 h-4 text-stone-500" />
             <span>Edit Details</span>
           </button>
+
+          {!user.is_guest && (
+            <button
+              onClick={() => setIsChangingPassword(true)}
+              className="flex items-center gap-1.5 px-3.5 py-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-semibold transition-colors"
+            >
+              <KeyRound className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+              <span>Change Password</span>
+            </button>
+          )}
 
           <button
             onClick={handleLogout}
@@ -303,6 +380,92 @@ export default function ProfileCard({ user, onProfileUpdate }: ProfileCardProps)
                   className="px-4 py-2 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-semibold rounded-lg hover:opacity-90 transition-opacity"
                 >
                   {saving ? 'Saving...' : 'Save Details'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* CHANGE PASSWORD MODAL */}
+      {isChangingPassword && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#181818] border border-stone-300 dark:border-stone-800 p-6 max-w-md w-full rounded-2xl space-y-4 font-sans text-xs shadow-2xl">
+            <div className="border-b border-stone-200 dark:border-stone-800 pb-3">
+              <span className="font-mono text-[10px] text-amber-900 dark:text-amber-300 uppercase tracking-wider font-extrabold block flex items-center gap-1">
+                <Lock className="w-3.5 h-3.5" />
+                <span>[ ACCOUNT SECURITY ]</span>
+              </span>
+              <h3 className="font-bold text-lg text-black dark:text-white mt-1">
+                Change Account Password
+              </h3>
+            </div>
+
+            {passwordMessage && (
+              <div
+                className={`p-3 rounded-xl text-xs font-mono flex items-start gap-2 ${
+                  passwordMessage.type === 'success'
+                    ? 'bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 text-emerald-900 dark:text-emerald-300'
+                    : 'bg-rose-50 dark:bg-rose-950/60 border border-rose-300 text-rose-900 dark:text-rose-300'
+                }`}
+              >
+                {passwordMessage.type === 'success' ? (
+                  <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                ) : (
+                  <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                )}
+                <span>{passwordMessage.text}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleChangePassword} className="space-y-3">
+              <div>
+                <label className="block text-stone-600 dark:text-stone-400 text-[11px] mb-1 font-medium">
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  required
+                  placeholder="At least 6 characters"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full p-2.5 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-xl focus:outline-none focus:ring-1 focus:ring-stone-500 font-sans"
+                />
+              </div>
+
+              <div>
+                <label className="block text-stone-600 dark:text-stone-400 text-[11px] mb-1 font-medium">
+                  Confirm New Password
+                </label>
+                <input
+                  type="password"
+                  required
+                  placeholder="Re-enter new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full p-2.5 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-xl focus:outline-none focus:ring-1 focus:ring-stone-500 font-sans"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-stone-200 dark:border-stone-800">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsChangingPassword(false);
+                    setPasswordMessage(null);
+                  }}
+                  className="px-4 py-2 border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 font-medium rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={passwordUpdating}
+                  className="px-5 py-2 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-semibold rounded-xl hover:opacity-90 transition-opacity flex items-center gap-1.5"
+                >
+                  <KeyRound className="w-3.5 h-3.5" />
+                  <span>{passwordUpdating ? 'Updating...' : 'Update Password'}</span>
                 </button>
               </div>
             </form>
