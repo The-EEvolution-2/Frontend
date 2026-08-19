@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import {
@@ -61,6 +61,14 @@ export default function ProfileCard({ user, onProfileUpdate }: ProfileCardProps)
   const [rollNumber, setRollNumber] = useState(user.roll_number || '');
   const [batchGroup, setBatchGroup] = useState(user.batch_group || '1');
 
+  // Sync state when props change
+  useEffect(() => {
+    setMobileNo(user.mobile_no || '');
+    setBatchYear(user.batch_year || '2026');
+    setRollNumber(user.roll_number || '');
+    setBatchGroup(user.batch_group || '1');
+  }, [user]);
+
   const handleLogout = async () => {
     localStorage.removeItem('ee_guest_user');
     await supabase.auth.signOut();
@@ -71,13 +79,11 @@ export default function ProfileCard({ user, onProfileUpdate }: ProfileCardProps)
     e.preventDefault();
     setSaving(true);
     try {
-      const isStudent = user.role?.toLowerCase().includes('student');
-
       const payload = {
-        mobile_no: !isStudent ? mobileNo : null,
-        batch_year: isStudent ? batchYear : null,
-        roll_number: isStudent ? rollNumber : null,
-        batch_group: isStudent ? batchGroup : null,
+        mobile_no: mobileNo.trim() || null,
+        batch_year: batchYear,
+        roll_number: rollNumber.trim() || null,
+        batch_group: batchGroup,
       };
 
       const { error: updateErr } = await supabase
@@ -118,14 +124,12 @@ export default function ProfileCard({ user, onProfileUpdate }: ProfileCardProps)
 
     setPasswordUpdating(true);
     try {
-      // 1. Update password in Supabase Auth
       const { error: authErr } = await supabase.auth.updateUser({
         password: newPassword,
       });
 
       if (authErr) throw authErr;
 
-      // 2. Mark profile as having password set
       await supabase
         .from('profiles')
         .update({ has_password: true })
@@ -151,9 +155,6 @@ export default function ProfileCard({ user, onProfileUpdate }: ProfileCardProps)
       setPasswordUpdating(false);
     }
   };
-
-  const isStudent = user.role?.toLowerCase().includes('student');
-  const isFaculty = user.role?.toLowerCase().includes('faculty') || user.role?.toLowerCase().includes('teacher');
 
   return (
     <div className="bg-[#FCFCF9] dark:bg-[#161616] border border-stone-200 dark:border-stone-800 rounded-2xl p-6 sm:p-8 font-sans shadow-lg space-y-6 text-stone-900 dark:text-stone-100">
@@ -193,16 +194,16 @@ export default function ProfileCard({ user, onProfileUpdate }: ProfileCardProps)
         <div className="flex flex-wrap items-center gap-3 self-end md:self-center">
           <button
             onClick={() => setIsEditing(true)}
-            className="flex items-center gap-1.5 px-3.5 py-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-semibold transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-semibold transition-colors shadow-xs"
           >
             <Edit3 className="w-4 h-4 text-stone-500" />
-            <span>Edit Details</span>
+            <span>Edit Profile</span>
           </button>
 
           {!user.is_guest && (
             <button
               onClick={() => setIsChangingPassword(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-semibold transition-colors"
+              className="flex items-center gap-1.5 px-3.5 py-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-semibold transition-colors shadow-xs"
             >
               <KeyRound className="w-4 h-4 text-amber-600 dark:text-amber-400" />
               <span>Change Password</span>
@@ -211,7 +212,7 @@ export default function ProfileCard({ user, onProfileUpdate }: ProfileCardProps)
 
           <button
             onClick={handleLogout}
-            className="flex items-center gap-1.5 px-3.5 py-2 border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 text-xs font-semibold transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-2 border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 text-xs font-semibold transition-colors shadow-xs"
           >
             <LogOut className="w-4 h-4" />
             <span>Sign Out</span>
@@ -231,41 +232,35 @@ export default function ProfileCard({ user, onProfileUpdate }: ProfileCardProps)
           </p>
         </div>
 
-        {isFaculty && (
-          <div className="p-4 bg-stone-100/60 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800/80 rounded-xl space-y-1">
-            <span className="text-stone-500 flex items-center gap-1.5 text-[11px] font-mono uppercase font-semibold">
-              <Phone className="w-3.5 h-3.5 text-stone-500" />
-              Mobile Contact (Teacher)
-            </span>
-            <p className="font-semibold text-black dark:text-white text-sm">
-              {user.mobile_no || 'Not Specified'}
-            </p>
-          </div>
-        )}
+        <div className="p-4 bg-stone-100/60 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800/80 rounded-xl space-y-1">
+          <span className="text-stone-500 flex items-center gap-1.5 text-[11px] font-mono uppercase font-semibold">
+            <Hash className="w-3.5 h-3.5 text-stone-500" />
+            Roll Number
+          </span>
+          <p className="font-semibold text-black dark:text-white text-sm font-mono">
+            {user.roll_number || 'Not Specified (Click Edit to Add)'}
+          </p>
+        </div>
 
-        {isStudent && (
-          <>
-            <div className="p-4 bg-stone-100/60 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800/80 rounded-xl space-y-1">
-              <span className="text-stone-500 flex items-center gap-1.5 text-[11px] font-mono uppercase font-semibold">
-                <Hash className="w-3.5 h-3.5 text-stone-500" />
-                Roll Number
-              </span>
-              <p className="font-semibold text-black dark:text-white text-sm font-mono">
-                {user.roll_number || 'N/A'}
-              </p>
-            </div>
+        <div className="p-4 bg-stone-100/60 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800/80 rounded-xl space-y-1">
+          <span className="text-stone-500 flex items-center gap-1.5 text-[11px] font-mono uppercase font-semibold">
+            <GraduationCap className="w-3.5 h-3.5 text-stone-500" />
+            Batch Year &amp; Group
+          </span>
+          <p className="font-semibold text-black dark:text-white text-sm">
+            Batch {user.batch_year || '2026'} • Group {user.batch_group || '1'}
+          </p>
+        </div>
 
-            <div className="p-4 bg-stone-100/60 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800/80 rounded-xl space-y-1">
-              <span className="text-stone-500 flex items-center gap-1.5 text-[11px] font-mono uppercase font-semibold">
-                <GraduationCap className="w-3.5 h-3.5 text-stone-500" />
-                Batch Year &amp; Group
-              </span>
-              <p className="font-semibold text-black dark:text-white text-sm">
-                Batch {user.batch_year || '2026'} • Group {user.batch_group || '1'}
-              </p>
-            </div>
-          </>
-        )}
+        <div className="p-4 bg-stone-100/60 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800/80 rounded-xl space-y-1">
+          <span className="text-stone-500 flex items-center gap-1.5 text-[11px] font-mono uppercase font-semibold">
+            <Phone className="w-3.5 h-3.5 text-stone-500" />
+            Mobile Contact
+          </span>
+          <p className="font-semibold text-black dark:text-white text-sm">
+            {user.mobile_no || 'Not Specified (Click Edit to Add)'}
+          </p>
+        </div>
 
         <div className="p-4 bg-stone-100/60 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800/80 rounded-xl space-y-1 md:col-span-2">
           <span className="text-stone-500 text-[11px] font-mono uppercase font-semibold block">
@@ -280,7 +275,7 @@ export default function ProfileCard({ user, onProfileUpdate }: ProfileCardProps)
       {/* EDIT DETAILS MODAL */}
       {isEditing && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#181818] border border-stone-300 dark:border-stone-800 p-6 max-w-md w-full rounded-xl space-y-4 font-sans text-xs shadow-2xl">
+          <div className="bg-white dark:bg-[#181818] border border-stone-300 dark:border-stone-800 p-6 max-w-md w-full rounded-2xl space-y-4 font-sans text-xs shadow-2xl">
             <h3 className="font-bold text-sm text-black dark:text-white border-b border-stone-200 dark:border-stone-800 pb-2">
               Edit Academic Profile Details
             </h3>
@@ -306,64 +301,59 @@ export default function ProfileCard({ user, onProfileUpdate }: ProfileCardProps)
                 />
               </div>
 
-              {isFaculty && (
+              <div>
+                <label className="block text-stone-600 dark:text-stone-400 text-[11px] mb-1 font-medium">
+                  Roll Number (Format: yy/EE/nn)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. 24/EE/05"
+                  value={rollNumber}
+                  onChange={(e) => setRollNumber(e.target.value)}
+                  className="w-full p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-lg font-mono focus:outline-none focus:ring-1 focus:ring-stone-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-stone-600 dark:text-stone-400 text-[11px] mb-1 font-medium">Mobile Contact</label>
-                  <input
-                    type="tel"
-                    required
-                    value={mobileNo}
-                    onChange={(e) => setMobileNo(e.target.value)}
+                  <label className="block text-stone-600 dark:text-stone-400 text-[11px] mb-1 font-medium">Batch Year</label>
+                  <select
+                    value={batchYear}
+                    onChange={(e) => setBatchYear(e.target.value)}
                     className="w-full p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-lg focus:outline-none focus:ring-1 focus:ring-stone-500"
-                  />
+                  >
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                    <option value="2026">2026</option>
+                    <option value="2027">2027</option>
+                    <option value="2028">2028</option>
+                  </select>
                 </div>
-              )}
 
-              {isStudent && (
-                <>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="block text-stone-600 dark:text-stone-400 text-[11px] mb-1 font-medium">Batch Year</label>
-                      <select
-                        value={batchYear}
-                        onChange={(e) => setBatchYear(e.target.value)}
-                        className="w-full p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-lg"
-                      >
-                        <option value="2024">2024</option>
-                        <option value="2025">2025</option>
-                        <option value="2026">2026</option>
-                        <option value="2027">2027</option>
-                        <option value="2028">2028</option>
-                      </select>
-                    </div>
+                <div>
+                  <label className="block text-stone-600 dark:text-stone-400 text-[11px] mb-1 font-medium">Batch Group</label>
+                  <select
+                    value={batchGroup}
+                    onChange={(e) => setBatchGroup(e.target.value)}
+                    className="w-full p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-lg focus:outline-none focus:ring-1 focus:ring-stone-500"
+                  >
+                    <option value="1">Group 1</option>
+                    <option value="2">Group 2</option>
+                    <option value="3">Group 3</option>
+                  </select>
+                </div>
+              </div>
 
-                    <div>
-                      <label className="block text-stone-600 dark:text-stone-400 text-[11px] mb-1 font-medium">Batch Group</label>
-                      <select
-                        value={batchGroup}
-                        onChange={(e) => setBatchGroup(e.target.value)}
-                        className="w-full p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-lg"
-                      >
-                        <option value="1">Group 1</option>
-                        <option value="2">Group 2</option>
-                        <option value="3">Group 3</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-stone-600 dark:text-stone-400 text-[11px] mb-1 font-medium">Roll Number (Format: yy/EE/nn)</label>
-                    <input
-                      type="text"
-                      required
-                      pattern="^[0-9]{2}\/[eE][eE]\/[0-9]{2,3}$"
-                      value={rollNumber}
-                      onChange={(e) => setRollNumber(e.target.value)}
-                      className="w-full p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-lg font-mono"
-                    />
-                  </div>
-                </>
-              )}
+              <div>
+                <label className="block text-stone-600 dark:text-stone-400 text-[11px] mb-1 font-medium">Mobile Contact (Optional)</label>
+                <input
+                  type="tel"
+                  placeholder="+91 9876543210"
+                  value={mobileNo}
+                  onChange={(e) => setMobileNo(e.target.value)}
+                  className="w-full p-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-lg focus:outline-none focus:ring-1 focus:ring-stone-500"
+                />
+              </div>
 
               <div className="flex justify-end gap-2 pt-3 border-t border-stone-200 dark:border-stone-800">
                 <button
