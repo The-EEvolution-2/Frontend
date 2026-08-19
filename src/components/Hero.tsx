@@ -6,6 +6,9 @@ import { Cpu, ArrowRight } from 'lucide-react';
 export default function Hero() {
   return (
     <section className="font-sans border border-stone-300 dark:border-stone-800 bg-[#FCFCF9] dark:bg-[#141414] rounded-2xl p-6 sm:p-8 lg:p-10 shadow-md mb-8 relative overflow-hidden">
+      {/* Background Decorative Grid Line */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-stone-200/30 to-transparent dark:from-stone-800/20 rounded-full blur-3xl pointer-events-none" />
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
         {/* Left Column: Main Hero Content (7 Grid Span) */}
         <div className="lg:col-span-7 space-y-6">
@@ -31,11 +34,11 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Solid Vibrant CTA Buttons */}
+          {/* CTA Buttons */}
           <div className="flex flex-wrap items-center gap-3 pt-1 font-mono text-xs">
             <Link
               href="/resources"
-              className="px-5 py-3 btn-primary-vibrant font-bold uppercase rounded-xl hover:opacity-90 transition-all flex items-center gap-2 shadow-md"
+              className="px-5 py-3 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-bold uppercase rounded-xl hover:opacity-90 transition-all flex items-center gap-2 shadow-md"
             >
               <span>Explore Technical Resources</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -43,7 +46,7 @@ export default function Hero() {
 
             <Link
               href="/projects"
-              className="px-5 py-3 border-2 border-primary-vibrant text-primary-vibrant bg-white dark:bg-stone-900 font-bold uppercase rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+              className="px-5 py-3 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white font-bold uppercase rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
             >
               <span>Hardware Repositories</span>
             </Link>
@@ -63,10 +66,10 @@ export default function Hero() {
             {/* Visual Overlay Card */}
             <div className="absolute bottom-3 left-3 right-3 bg-stone-900/90 backdrop-blur-sm border border-stone-700 text-white font-mono text-[11px] p-3 rounded-xl flex items-center justify-between shadow-lg">
               <div className="flex items-center gap-2">
-                <Cpu className="w-4 h-4 text-primary-vibrant flex-shrink-0" />
+                <Cpu className="w-4 h-4 text-emerald-400 flex-shrink-0" />
                 <span className="font-bold uppercase tracking-wide">FIG 1.0: EE TELEMETRY WORKBENCH</span>
               </div>
-              <span className="text-[9px] px-2 py-0.5 rounded badge-primary-vibrant font-bold">
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 font-bold border border-emerald-800">
                 LIVE SPEC
               </span>
             </div>

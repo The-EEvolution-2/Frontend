@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation';
 import { NAV_ITEMS } from '../constants/nav';
 import ThemeToggle from './ThemeToggle';
 import FontSizeControl from './FontSizeControl';
-import VibrantColorToggle from './VibrantColorToggle';
 import { supabase } from '../lib/supabaseClient';
 import { ChevronDown, Menu, X, User } from 'lucide-react';
 
@@ -19,8 +18,10 @@ export default function Navbar() {
   const [openMobileSubmenu, setOpenMobileSubmenu] = useState<string | null>(null);
   const navRef = useRef<HTMLDivElement>(null);
 
+  // Fetch logged in user details directly from Supabase session
   useEffect(() => {
     async function checkAuthSession() {
+      // 1. Check guest user in localStorage
       const guestData = localStorage.getItem('ee_guest_user');
       if (guestData) {
         try {
@@ -33,6 +34,7 @@ export default function Navbar() {
         }
       }
 
+      // 2. Check Supabase Auth Session
       const { data: { session } } = await supabase.auth.getSession();
       if (session && session.user) {
         setIsAuthenticated(true);
@@ -177,8 +179,6 @@ export default function Navbar() {
 
           {/* Right: Controls & User Profile Name */}
           <div className="hidden md:flex items-center gap-2 lg:gap-3 flex-shrink-0 text-xs font-sans">
-            <VibrantColorToggle />
-            <span className="text-stone-300 dark:text-stone-800">|</span>
             <FontSizeControl />
             <span className="text-stone-300 dark:text-stone-800">|</span>
             <ThemeToggle />
@@ -194,7 +194,6 @@ export default function Navbar() {
 
           {/* Mobile Header Controls: Clean Theme Toggle & Hamburger Button */}
           <div className="flex items-center gap-2 md:hidden">
-            <VibrantColorToggle />
             <ThemeToggle />
             <button
               onClick={() => setSidebarOpen(true)}
@@ -254,7 +253,7 @@ export default function Navbar() {
                           </button>
                         </div>
 
-                        {/* Collapsible Submenu */}
+                        {/* Collapsible Submenu (Only expands when clicked) */}
                         {isSubmenuOpen && (
                           <div className="pl-3 mt-2 flex flex-col gap-2 text-xs border-l-2 border-stone-300 dark:border-stone-700">
                             {item.subItems?.map((sub) => (

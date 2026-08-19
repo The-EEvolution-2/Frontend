@@ -30,21 +30,21 @@ export default function TimedLoginPromptModal() {
         }
       }
 
-      // 2. Login Prompt logic for unauthenticated visitors
+      // 2. Login Prompt logic: strictly only for unauthenticated visitors (never if logged in or guest)
       const guestData = localStorage.getItem('ee_guest_user');
       const loginDismissed = sessionStorage.getItem('ee_login_prompt_dismissed');
 
       if (!user && !guestData && !loginDismissed) {
-        // Trigger Login popup after 8 seconds of browsing
+        // Trigger Login popup after 8 seconds of browsing for unauthenticated visitors
         const loginTimer = setTimeout(() => {
           setShowLoginPopup(true);
         }, 8000);
         return () => clearTimeout(loginTimer);
       }
 
-      // 3. Membership Prompt logic for logged-in non-members or guest users
+      // 3. Membership Prompt logic: strictly only for logged-in non-members or guest users (never if already a verified member)
       const membershipDismissed = sessionStorage.getItem('ee_membership_prompt_dismissed');
-      if (!isMember && !membershipDismissed) {
+      if (!isMember && (user || guestData) && !membershipDismissed) {
         // Trigger Membership Treasurer Activation Key popup after 12 seconds of browsing
         const membershipTimer = setTimeout(() => {
           setShowMembershipPopup(true);
@@ -70,7 +70,7 @@ export default function TimedLoginPromptModal() {
 
   return (
     <div className="fixed bottom-6 right-6 z-40 max-w-sm w-full font-sans text-xs flex flex-col-reverse gap-3 pointer-events-none max-h-[calc(100vh-100px)] overflow-y-auto pr-1">
-      {/* POPUP 1: SIGN IN / REGISTER PROMPT (STACKS AT BOTTOM) */}
+      {/* POPUP 1: SIGN IN / REGISTER PROMPT (STRICTLY FOR UNAUTHENTICATED VISITORS) */}
       {showLoginPopup && (
         <div className="pointer-events-auto bg-[#FCFCF9] dark:bg-[#161616] border-2 border-stone-800 dark:border-stone-200 p-5 rounded-2xl shadow-2xl space-y-3 relative text-stone-900 dark:text-stone-100 animate-in slide-in-from-bottom-5 duration-300">
           <button
@@ -113,7 +113,7 @@ export default function TimedLoginPromptModal() {
         </div>
       )}
 
-      {/* POPUP 2: TREASURER ACTIVATION KEY MEMBERSHIP PROMPT (STACKS DIRECTLY ON TOP) */}
+      {/* POPUP 2: TREASURER ACTIVATION KEY MEMBERSHIP PROMPT (STRICTLY FOR NON-MEMBERS) */}
       {showMembershipPopup && (
         <div className="pointer-events-auto bg-[#FCFCF9] dark:bg-[#161616] border-2 border-stone-800 dark:border-stone-200 p-5 rounded-2xl shadow-2xl space-y-3 relative text-stone-900 dark:text-stone-100 animate-in slide-in-from-bottom-5 duration-300">
           <button
