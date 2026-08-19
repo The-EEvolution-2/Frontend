@@ -13,7 +13,7 @@ export default function LoginForm() {
   const [mode, setMode] = useState<'signin' | 'signup' | 'onboarding' | 'guest'>('signin');
   const [role, setRole] = useState<'student' | 'faculty'>('student');
 
-  // Terms & Privacy Checkbox Agreements
+  // Terms & Privacy Checkbox Agreements (Required only when creating a new account / guest)
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [agreedPrivacy, setAgreedPrivacy] = useState(false);
 
@@ -74,8 +74,8 @@ export default function LoginForm() {
   };
 
   const validateAgreements = (): boolean => {
-    if (!agreedTerms || !agreedPrivacy) {
-      setError('Please read and agree to both the Terms & Conditions and Privacy Policy before signing in.');
+    if (mode === 'signup' && (!agreedTerms || !agreedPrivacy)) {
+      setError('Please read and agree to both the Terms & Conditions and Privacy Policy before creating a new account.');
       return false;
     }
     return true;
@@ -174,8 +174,6 @@ export default function LoginForm() {
 
   const handleGuestSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateAgreements()) return;
-
     if (!guestName.trim()) {
       setError('Please enter your name to proceed as guest');
       return;
@@ -254,6 +252,8 @@ export default function LoginForm() {
           <p className="text-xs text-stone-500 mt-1 font-mono">
             {mode === 'onboarding'
               ? 'Specify academic credentials to complete accession'
+              : mode === 'signup'
+              ? 'Register a new student or faculty account'
               : 'Sign in to access your student or faculty account'}
           </p>
         </div>
@@ -265,11 +265,11 @@ export default function LoginForm() {
           </div>
         )}
 
-        {/* Mandatory Policy Agreement Box */}
-        {mode !== 'onboarding' && (
+        {/* Mandatory Policy Agreement Box ONLY FOR SIGN UP MODE */}
+        {mode === 'signup' && (
           <div className="p-4 border border-stone-200 dark:border-stone-800 bg-stone-100/70 dark:bg-stone-900/60 rounded-xl space-y-2.5 text-xs">
             <span className="font-mono text-[10px] font-bold text-stone-500 uppercase block tracking-wider">
-              [ MANDATORY POLICIES AGREEMENT ]
+              [ MANDATORY REGISTRATION POLICIES AGREEMENT ]
             </span>
 
             <label className="flex items-start gap-2.5 cursor-pointer text-stone-800 dark:text-stone-200 select-none">
@@ -318,7 +318,7 @@ export default function LoginForm() {
               onClick={handleGoogleLogin}
               disabled={loading}
               className={`w-full flex items-center justify-center gap-3 p-3 border border-stone-400 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white rounded-xl transition-all font-bold shadow-sm ${
-                !agreedTerms || !agreedPrivacy ? 'opacity-50 cursor-not-allowed' : 'hover:bg-stone-100 dark:hover:bg-stone-800'
+                mode === 'signup' && (!agreedTerms || !agreedPrivacy) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-stone-100 dark:hover:bg-stone-800'
               }`}
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -369,7 +369,7 @@ export default function LoginForm() {
 
               <button
                 type="submit"
-                disabled={loading || !agreedTerms || !agreedPrivacy}
+                disabled={loading || (mode === 'signup' && (!agreedTerms || !agreedPrivacy))}
                 className="w-full py-3 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-mono text-xs font-bold uppercase rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50 shadow-md"
               >
                 <LogIn className="w-4 h-4" />
@@ -561,8 +561,7 @@ export default function LoginForm() {
 
             <button
               type="submit"
-              disabled={!agreedTerms || !agreedPrivacy}
-              className="w-full py-3 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-mono text-xs font-bold uppercase rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-3 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-mono text-xs font-bold uppercase rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-md"
             >
               <ArrowRight className="w-4 h-4" />
               <span>Enter as Guest</span>
