@@ -103,13 +103,13 @@ export default function Navbar() {
     <>
       <header className="sticky top-0 z-40 w-full border-b border-stone-200 dark:border-stone-800 bg-[#FCFCF9] dark:bg-[#141414] py-2.5 transition-colors shadow-sm text-stone-900 dark:text-stone-100 font-sans">
         <div className="w-full px-3 sm:px-6 lg:px-8 flex items-center justify-between">
-          {/* Left: Brand Identity Logo & Ultra-Compact Dept. Subtitle */}
+          {/* Left: Brand Identity Logo & Compact Dept. Subtitle */}
           <div className="flex-shrink-0">
             <Link href="/" className="group block leading-none">
               <span className="text-lg sm:text-xl font-extrabold text-black dark:text-white tracking-tight uppercase group-hover:text-blue-900 dark:group-hover:text-blue-400 transition-colors">
                 EEvolution 2.0
               </span>
-              <span className="block text-[8px] sm:text-[9px] font-mono text-stone-500 uppercase font-semibold mt-0.5 tracking-tighter">
+              <span className="block text-[7px] sm:text-[8px] font-mono text-stone-500 uppercase font-semibold mt-0.5 tracking-tighter">
                 DEPT. OF ELECTRICAL ENGINEERING
               </span>
             </Link>

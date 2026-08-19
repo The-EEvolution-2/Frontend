@@ -24,8 +24,14 @@ export const NAV_ITEMS: NavItem[] = [
       { label: 'Career & Industry Paths', href: '/resources/career' },
     ],
   },
-  { label: 'Research', href: '/research' },
-  { label: 'Projects', href: '/projects' },
+  {
+    label: 'Research & Projects',
+    href: '/research',
+    subItems: [
+      { label: 'Peer-Reviewed Research', href: '/research' },
+      { label: 'Hardware & Code Repositories', href: '/projects' },
+    ],
+  },
   {
     label: 'Software',
     href: '/software',
