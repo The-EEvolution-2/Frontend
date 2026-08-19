@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { LogIn, KeyRound, Sparkles, X } from 'lucide-react';
+import { LogIn, KeyRound, X, BadgeCheck } from 'lucide-react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabaseClient';
 
@@ -126,7 +126,7 @@ export default function TimedLoginPromptModal() {
 
           <div className="space-y-1 pr-4">
             <span className="font-mono text-[10px] text-amber-900 dark:text-amber-300 uppercase tracking-wider font-extrabold block flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-amber-500" />
+              <BadgeCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               <span>[ MEMBER PASS ACTIVATION ]</span>
             </span>
             <h4 className="font-bold text-sm text-black dark:text-white tracking-tight">
