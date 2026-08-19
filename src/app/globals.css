@@ -3,9 +3,8 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --vibrant-primary: #00F0FF;
-  --vibrant-secondary: #7000FF;
-  --vibrant-glow: rgba(0, 240, 255, 0.15);
+  --primary-vibrant: #2563EB;
+  --secondary-vibrant: #DC2626;
 }
 
 @layer base {
@@ -21,23 +20,32 @@
   }
 }
 
-/* Vibrant Accent Utility Classes */
-.vibrant-gradient-text {
-  background: linear-gradient(135deg, var(--vibrant-primary), var(--vibrant-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+/* Solid Vibrant Utility Classes */
+.btn-primary-vibrant {
+  background-color: var(--primary-vibrant) !important;
+  color: #ffffff !important;
 }
 
-.vibrant-border {
-  border-color: var(--vibrant-primary) !important;
+.btn-secondary-vibrant {
+  background-color: var(--secondary-vibrant) !important;
+  color: #ffffff !important;
 }
 
-.vibrant-bg {
-  background-color: var(--vibrant-primary) !important;
+.badge-primary-vibrant {
+  background-color: var(--primary-vibrant) !important;
+  color: #ffffff !important;
 }
 
-.vibrant-glow-box {
-  box-shadow: 0 10px 30px -10px var(--vibrant-glow) !important;
+.border-primary-vibrant {
+  border-color: var(--primary-vibrant) !important;
+}
+
+.text-primary-vibrant {
+  color: var(--primary-vibrant) !important;
+}
+
+.text-secondary-vibrant {
+  color: var(--secondary-vibrant) !important;
 }
 
 .font-size-sm, .font-size-sm * {

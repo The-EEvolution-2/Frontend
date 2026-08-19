@@ -1,29 +1,17 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Cpu, ArrowRight, Zap, Sparkles } from 'lucide-react';
+import { Cpu, ArrowRight } from 'lucide-react';
 
 export default function Hero() {
   return (
-    <section className="font-sans border border-stone-300 dark:border-stone-800 bg-[#FCFCF9] dark:bg-[#141414] rounded-2xl p-6 sm:p-8 lg:p-10 shadow-md mb-8 relative overflow-hidden vibrant-glow-box">
-      {/* Background Decorative Vibrant Radial Glow */}
-      <div
-        className="absolute top-0 right-0 w-96 h-96 rounded-full blur-3xl pointer-events-none transition-colors duration-500"
-        style={{ background: 'var(--vibrant-glow)' }}
-      />
-
+    <section className="font-sans border border-stone-300 dark:border-stone-800 bg-[#FCFCF9] dark:bg-[#141414] rounded-2xl p-6 sm:p-8 lg:p-10 shadow-md mb-8 relative overflow-hidden">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
         {/* Left Column: Main Hero Content (7 Grid Span) */}
         <div className="lg:col-span-7 space-y-6">
-          {/* Vibrant Portal Badge */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-900 text-white font-mono text-[11px] font-bold uppercase tracking-wider shadow-sm border border-stone-700">
-            <Zap className="w-3.5 h-3.5" style={{ color: 'var(--vibrant-primary)' }} />
-            <span className="vibrant-gradient-text font-mono font-extrabold">EEVOLUTION 2.0 ACADEMIC PORTAL</span>
-          </div>
-
           {/* Headline */}
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-black dark:text-white tracking-tight leading-[1.15]">
-            Electrical Engineering, <span className="vibrant-gradient-text">Embedded Systems</span> &amp; Circuit Telemetry
+            Electrical Engineering, Embedded Systems &amp; Circuit Telemetry
           </h1>
 
           {/* Subtitle / Paragraph */}
@@ -43,19 +31,19 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* CTA Buttons */}
+          {/* Solid Vibrant CTA Buttons */}
           <div className="flex flex-wrap items-center gap-3 pt-1 font-mono text-xs">
             <Link
               href="/resources"
-              className="px-5 py-3 bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-bold uppercase rounded-xl hover:opacity-90 transition-all flex items-center gap-2 shadow-md"
+              className="px-5 py-3 btn-primary-vibrant font-bold uppercase rounded-xl hover:opacity-90 transition-all flex items-center gap-2 shadow-md"
             >
               <span>Explore Technical Resources</span>
-              <ArrowRight className="w-3.5 h-3.5" style={{ color: 'var(--vibrant-primary)' }} />
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
 
             <Link
               href="/projects"
-              className="px-5 py-3 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-black dark:text-white font-bold uppercase rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+              className="px-5 py-3 border-2 border-primary-vibrant text-primary-vibrant bg-white dark:bg-stone-900 font-bold uppercase rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
             >
               <span>Hardware Repositories</span>
             </Link>
@@ -75,12 +63,11 @@ export default function Hero() {
             {/* Visual Overlay Card */}
             <div className="absolute bottom-3 left-3 right-3 bg-stone-900/90 backdrop-blur-sm border border-stone-700 text-white font-mono text-[11px] p-3 rounded-xl flex items-center justify-between shadow-lg">
               <div className="flex items-center gap-2">
-                <Cpu className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--vibrant-primary)' }} />
+                <Cpu className="w-4 h-4 text-primary-vibrant flex-shrink-0" />
                 <span className="font-bold uppercase tracking-wide">FIG 1.0: EE TELEMETRY WORKBENCH</span>
               </div>
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-stone-950 text-white font-bold border border-stone-700 flex items-center gap-1">
-                <Sparkles className="w-2.5 h-2.5" style={{ color: 'var(--vibrant-primary)' }} />
-                <span>LIVE SPEC</span>
+              <span className="text-[9px] px-2 py-0.5 rounded badge-primary-vibrant font-bold">
+                LIVE SPEC
               </span>
             </div>
           </div>
