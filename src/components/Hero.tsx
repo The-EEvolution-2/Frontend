@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Cpu, ArrowRight } from 'lucide-react';
+import { Cpu, ArrowRight, GraduationCap } from 'lucide-react';
 
 export default function Hero() {
   return (
@@ -12,6 +12,12 @@ export default function Hero() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
         {/* Left Column: Main Hero Content (7 Grid Span) */}
         <div className="lg:col-span-7 space-y-6">
+          {/* Department Identification Pill Badge */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-stone-900 dark:bg-stone-100 text-white dark:text-black font-mono text-[11px] font-bold uppercase tracking-wider shadow-sm">
+            <GraduationCap className="w-3.5 h-3.5 text-blue-400 dark:text-blue-600" />
+            <span>DEPARTMENT OF ELECTRICAL ENGINEERING</span>
+          </div>
+
           {/* Headline */}
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-black dark:text-white tracking-tight leading-[1.15]">
             Electrical Engineering, Embedded Systems &amp; Circuit Telemetry
